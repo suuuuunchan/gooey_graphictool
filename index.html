@@ -1,0 +1,2159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STICKY</title>
+<style>
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Thin.woff2')      format('woff2'); font-weight:100; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-ExtraLight.woff2') format('woff2'); font-weight:200; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Light.woff2')     format('woff2'); font-weight:300; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Regular.woff2')   format('woff2'); font-weight:400; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Medium.woff2')    format('woff2'); font-weight:500; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-SemiBold.woff2')  format('woff2'); font-weight:600; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Bold.woff2')      format('woff2'); font-weight:700; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-ExtraBold.woff2') format('woff2'); font-weight:800; }
+  @font-face { font-family:'Delight'; src:url('fonts/Delight-Black.woff2')     format('woff2'); font-weight:900; }
+
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-Regular.ttf')        format('truetype'); font-weight:400; font-style:normal; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-Italic.ttf')         format('truetype'); font-weight:400; font-style:italic; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-Medium.ttf')         format('truetype'); font-weight:500; font-style:normal; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-MediumItalic.ttf')   format('truetype'); font-weight:500; font-style:italic; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-SemiBold.ttf')       format('truetype'); font-weight:600; font-style:normal; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-SemiBoldItalic.ttf') format('truetype'); font-weight:600; font-style:italic; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-Bold.ttf')           format('truetype'); font-weight:700; font-style:normal; }
+  @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-BoldItalic.ttf')     format('truetype'); font-weight:700; font-style:italic; }
+
+  @font-face { font-family:'BookkMyungjo'; src:url('fonts/BookkMyungjo_Light.ttf') format('truetype'); font-weight:300; }
+  @font-face { font-family:'BookkMyungjo'; src:url('fonts/BookkMyungjo_Bold.ttf')  format('truetype'); font-weight:700; }
+
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-1Thin.woff2')       format('woff2'),url('fonts/에이투지체-1Thin.otf')       format('opentype'); font-weight:100; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-2ExtraLight.woff2') format('woff2'),url('fonts/에이투지체-2ExtraLight.otf') format('opentype'); font-weight:200; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-3Light.woff2')      format('woff2'),url('fonts/에이투지체-3Light.otf')      format('opentype'); font-weight:300; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-4Regular.woff2')    format('woff2'),url('fonts/에이투지체-4Regular.otf')    format('opentype'); font-weight:400; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-5Medium.woff2')     format('woff2'),url('fonts/에이투지체-5Medium.otf')     format('opentype'); font-weight:500; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-6SemiBold.woff2')   format('woff2'),url('fonts/에이투지체-6SemiBold.otf')   format('opentype'); font-weight:600; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-7Bold.woff2')       format('woff2'),url('fonts/에이투지체-7Bold.otf')       format('opentype'); font-weight:700; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-8ExtraBold.woff2')  format('woff2'),url('fonts/에이투지체-8ExtraBold.otf')  format('opentype'); font-weight:800; }
+  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-9Black.woff2')      format('woff2'),url('fonts/에이투지체-9Black.otf')      format('opentype'); font-weight:900; }
+
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+  :root {
+    --bg:       #ebebeb;
+    --panel-bg: #ffffff;
+    --border:   #e4e4e4;
+    --bhi:      #c8c8c8;
+    --accent:   #0d0d0d;
+    --text:     #0d0d0d;
+    --muted:    #aaaaaa;
+    --ibg:      #f5f5f5;
+    --pw:       264px;
+    --r:        8px;
+  }
+
+  body { background:var(--bg); color:var(--text); font-family:'Delight',system-ui,sans-serif; font-weight:400; height:100vh; display:flex; overflow:hidden; font-size:11px; letter-spacing:.02em; }
+
+  /* ── Panel ── */
+  #panel { width:var(--pw); min-width:var(--pw); background:var(--panel-bg); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  #panel-header { padding:18px 18px 15px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .logo { font-size:12px; font-weight:900; letter-spacing:.18em; color:var(--accent); text-transform:uppercase; }
+  .ver  { font-size:9px; color:var(--muted); }
+  #panel-body { flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:#e0e0e0 transparent; }
+  #panel-body::-webkit-scrollbar { width:3px; }
+  #panel-body::-webkit-scrollbar-thumb { background:#e0e0e0; border-radius:2px; }
+
+  /* ── Text input ── */
+  .top-section { padding:14px 16px; border-bottom:1px solid var(--border); }
+  #text-input { width:100%; background:var(--ibg); border:1px solid var(--border); color:var(--text); font-family:'Delight',system-ui; font-size:15px; font-weight:700; padding:9px 11px; resize:none; outline:none; border-radius:var(--r); transition:border-color .18s; line-height:1.35; min-height:62px; letter-spacing:.04em; }
+  #text-input:focus { border-color:var(--accent); }
+
+  /* ── Accordion ── */
+  .acc { border-bottom:1px solid var(--border); }
+  .acc-head { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; cursor:pointer; user-select:none; }
+  .acc-title { font-size:10px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
+  .acc-head:hover .acc-title,.acc-head.open .acc-title { color:var(--accent); }
+  .acc-arrow { font-size:9px; color:var(--muted); transition:transform .2s,color .15s; }
+  .acc-head.open .acc-arrow { transform:rotate(90deg); color:var(--accent); }
+  .acc-body { padding:10px 20px 18px; display:none; overflow-x:hidden; }
+  .acc-body.open { display:block; }
+
+  /* ── Control rows ── */
+  .control-row { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .control-row:last-child { margin-bottom:0; }
+  .lbl { font-size:9px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); width:62px; flex-shrink:0; }
+
+  /* ── Range ── */
+  input[type=range] { -webkit-appearance:none; flex:1; min-width:0; height:2px; background:var(--border); border-radius:2px; outline:none; cursor:pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; background:var(--accent); border-radius:50%; cursor:pointer; transition:opacity .12s,transform .1s; }
+  input[type=range]::-webkit-slider-thumb:hover { opacity:.5; transform:scale(1.2); }
+
+  /* ── Pill / ratio ── */
+  .pill-grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:4px; }
+  .ratio-grid  { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; }
+  .pill,.ratio-btn { background:var(--ibg); border:1px solid var(--border); color:var(--muted); font-size:9px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; border-radius:5px; text-align:center; transition:all .12s; font-family:'Delight',system-ui; font-weight:300; }
+  .pill { padding:7px 2px; }
+  .ratio-btn { padding:7px 2px 6px; display:flex; flex-direction:column; align-items:center; gap:4px; font-size:8px; }
+  .pill:hover,.ratio-btn:hover { border-color:var(--bhi); color:var(--text); }
+  .pill.on,.ratio-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .ratio-icon { display:flex; align-items:center; justify-content:center; width:16px; height:13px; }
+
+  /* ── Color ── */
+  .color-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .color-row:last-child { margin-bottom:0; }
+  .swatch { position:relative; width:28px; height:20px; border-radius:5px; overflow:hidden; border:1px solid var(--border); cursor:pointer; flex-shrink:0; }
+  .swatch input[type=color] { position:absolute; inset:-4px; width:calc(100% + 8px); height:calc(100% + 8px); border:none; cursor:pointer; opacity:0; }
+  .swatch-fill { position:absolute; inset:0; pointer-events:none; border-radius:4px; }
+  .hex-label { font-size:10px; font-family:'SF Mono',monospace; color:var(--muted); }
+
+  /* ── Toggle ── */
+  .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0 10px; margin-bottom:12px; border-bottom:1px solid var(--border); }
+  .toggle-label { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .toggle { position:relative; width:38px; height:22px; }
+  .toggle input { display:none; }
+  .toggle-track { position:absolute; inset:0; background:#e0e0e0; border-radius:11px; cursor:pointer; transition:background .2s; }
+  .toggle input:checked + .toggle-track { background:var(--accent); }
+  .toggle-thumb { position:absolute; top:3px; left:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition:transform .2s; pointer-events:none; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+  .toggle input:checked ~ .toggle-thumb { transform:translateX(16px); }
+
+  /* ── Motion inner ── */
+  .motion-inner { transition:opacity .2s; }
+  .motion-inner.off { opacity:.28; pointer-events:none; }
+  /* ── Transparent canvas ── */
+  .canvas-transparent { background-image:repeating-conic-gradient(#c8c8c8 0% 25%,#fff 0% 50%) !important; background-size:16px 16px !important; }
+  /* ── Hover preview ── */
+  #hover-preview { position:fixed; display:none; z-index:9999; pointer-events:none; }
+  #hp-wrap { background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.16); width:168px; }
+  #hp-canvas { width:168px; height:96px; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; }
+  #hp-bg { position:absolute; inset:0; }
+  #hp-text { position:relative; font-family:'Delight',system-ui; font-size:20px; font-weight:700; text-align:center; white-space:nowrap; letter-spacing:.04em; filter:url(#hp-filter); }
+  #hp-label { text-align:center; font-size:8px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); padding:5px 0 6px; border-top:1px solid var(--border); }
+  .sub-label { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .font-category { font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+  /* ── Stroke pills (3-column) ── */
+  .stroke-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:12px; }
+  .stroke-btn { background:var(--ibg); border:1px solid var(--border); color:var(--muted); font-size:9px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; border-radius:5px; padding:8px 4px; text-align:center; transition:all .12s; font-family:'Delight',system-ui; font-weight:300; }
+  .stroke-btn:hover { border-color:var(--bhi); color:var(--text); }
+  .stroke-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .font-pills { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+  .font-group { display:flex; gap:4px; }
+  .font-btn { flex:1; background:var(--ibg); border:1px solid var(--border); color:var(--muted); font-size:9px; letter-spacing:.04em; cursor:pointer; border-radius:5px; padding:7px 4px; text-align:center; transition:all .12s; }
+  .font-btn:hover { border-color:var(--bhi); color:var(--text); }
+  .font-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  .font-btn[data-font="LibreBaskerville"] { font-family:'LibreBaskerville',serif; letter-spacing:.01em; }
+  .frame-box { background:var(--ibg); border:1px solid var(--border); border-radius:7px; padding:11px 12px 10px; margin-bottom:10px; }
+  .frame-box:last-of-type { margin-bottom:12px; }
+  .frame-tag { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0; display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
+  .frame-tag:hover { color:var(--accent); }
+  .frame-arrow { font-size:9px; color:var(--muted); transition:transform .2s,color .15s; }
+  .frame-tag:hover .frame-arrow { color:var(--accent); }
+  .frame-tag .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .frame-tag.start .dot { background:#bbb; }
+  .frame-tag.end   .dot { background:var(--accent); }
+
+  /* ── Select ── */
+  .styled-select { width:100%; background:var(--ibg); border:1px solid var(--border); color:var(--text); font-family:'Delight',system-ui; font-size:10px; letter-spacing:.06em; padding:8px 28px 8px 10px; border-radius:6px; outline:none; cursor:pointer; -webkit-appearance:none; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; transition:border-color .15s; }
+  .styled-select:focus { border-color:var(--accent); }
+
+  /* ── Reset button ── */
+  .reset-btn { background:none; border:none; color:var(--muted); font-size:8px; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; padding:8px 0 0; font-family:'Delight',system-ui; font-weight:400; display:block; width:100%; text-align:right; transition:color .15s; }
+  .reset-btn:hover { color:var(--accent); }
+
+  /* ── Footer ── */
+  #panel-footer { padding:12px 16px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:6px; flex-shrink:0; }
+  .btn-primary { background:var(--accent); color:#fff; border:none; border-radius:var(--r); padding:10px 0; font-family:'Delight',system-ui; font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; cursor:pointer; width:100%; transition:opacity .15s; }
+  .btn-primary:hover { opacity:.7; }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:var(--r); padding:8px 0; font-family:'Delight',system-ui; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; width:100%; transition:all .15s; }
+  .btn-ghost:hover { border-color:var(--bhi); color:var(--text); }
+
+  /* ── Preview ── */
+  #preview-area { flex:1; display:flex; align-items:center; justify-content:center; background:var(--bg); position:relative; overflow:hidden; }
+  #canvas-wrap { position:relative; box-shadow:0 0 0 1px rgba(0,0,0,.07),0 16px 48px rgba(0,0,0,.1); transition:width .3s cubic-bezier(.4,0,.2,1),height .3s cubic-bezier(.4,0,.2,1); overflow:hidden; }
+  #canvas-wrap.full-mode { box-shadow:none; }
+  #canvas-content { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  #text-transform-layer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:transform; }
+  #sticky-text { font-family:'Delight',system-ui,sans-serif; text-align:center; word-break:break-word; padding:60px; pointer-events:none; user-select:none; will-change:filter; }
+  #sticky-text .text-line { display:block; white-space:pre; }
+  #sticky-text .text-line > span { display:inline-block; cursor:grab; pointer-events:all; }
+  /* ── Rubber-band selection rect ── */
+  #sel-rect { position:fixed; display:none; border:1px solid rgba(64,128,255,0.7); background:rgba(64,128,255,0.08); pointer-events:none; z-index:1000; }
+  /* ── Bounding box ── */
+  #bbox { position:fixed; display:none; border:1.5px solid rgba(64,128,255,0.85); cursor:move; z-index:1001; }
+  /* ── Preview HUD ── */
+  #preview-hud { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:4px; background:rgba(255,255,255,0.82); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(0,0,0,0.08); border-radius:22px; padding:3px; z-index:900; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+  .hud-btn { display:flex; align-items:center; gap:6px; border:none; border-radius:18px; padding:7px 14px; font-family:'Delight',system-ui; font-size:8.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; cursor:pointer; transition:all .15s; background:transparent; color:var(--muted); }
+  .hud-btn:hover { background:rgba(0,0,0,0.06); color:var(--text); }
+  .hud-btn.on { background:var(--accent); color:#fff; }
+  .hud-btn svg { flex-shrink:0; }
+  .bbox-handle { position:absolute; width:9px; height:9px; background:#fff; border:1.5px solid rgba(64,128,255,0.9); border-radius:2px; z-index:1002; }
+  .bbox-handle[data-corner=nw]{ top:-5px; left:-5px; cursor:nw-resize; }
+  .bbox-handle[data-corner=ne]{ top:-5px; right:-5px; cursor:ne-resize; }
+  .bbox-handle[data-corner=sw]{ bottom:-5px; left:-5px; cursor:sw-resize; }
+  .bbox-handle[data-corner=se]{ bottom:-5px; right:-5px; cursor:se-resize; }
+
+  /* ── Info bar ── */
+  #info-bar { position:absolute; bottom:0; left:0; right:0; background:rgba(235,235,235,.9); backdrop-filter:blur(8px); border-top:1px solid var(--border); padding:6px 18px; display:flex; align-items:center; gap:20px; z-index:10; height:26px; }
+  .info-item { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#bbb; }
+  .info-item b { color:#ccc; font-weight:400; margin-right:4px; }
+
+  #svg-filters { position:absolute; width:0; height:0; overflow:hidden; }
+  /* ── Numeric value input ── */
+  .val-input { width:40px; flex-shrink:0; background:var(--ibg); border:1px solid var(--border); color:var(--text); font-family:'SF Mono',monospace; font-size:9px; text-align:right; padding:3px 5px; border-radius:4px; outline:none; -moz-appearance:textfield; appearance:textfield; transition:border-color .15s; }
+  .val-input::-webkit-inner-spin-button,.val-input::-webkit-outer-spin-button { -webkit-appearance:none; }
+  .val-input:focus { border-color:var(--accent); background:var(--panel-bg); }
+</style>
+</head>
+<body>
+
+<svg id="svg-filters" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="sticky-filter" x="-80%" y="-80%" width="260%" height="260%"
+            color-interpolation-filters="sRGB">
+      <!-- ① Gooey mask -->
+      <feGaussianBlur id="f-blur" in="SourceGraphic" stdDeviation="10" result="blur"/>
+      <feMorphology id="f-morph" operator="dilate" radius="1.5" in="blur" result="dilated"/>
+      <feGaussianBlur id="f-blur2" in="dilated" stdDeviation="0" result="softened"/>
+      <feColorMatrix id="f-matrix" in="softened" type="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -6" result="mask"/>
+
+      <!-- ② Fill layer + alpha gate (values-only control avoids Chrome in/in2 cache bugs) -->
+      <feComposite in="SourceGraphic" in2="mask" operator="atop" result="fill_raw"/>
+      <feColorMatrix id="f-fill-alpha" in="fill_raw" type="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="fill_layer"/>
+
+      <!-- ③ Stroke via Gaussian dilation — smooth rounded edges, no morphology artifacts.
+           stdDeviation: 0=off, 4=light, 8.5=bold, 6=dashed ring -->
+      <feGaussianBlur id="f-stroke-blur" in="mask" stdDeviation="0" result="stroke_halo"/>
+      <feColorMatrix id="f-stroke-thresh" in="stroke_halo" type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 20 -4" result="stroke_outer"/>
+      <feComposite in="stroke_outer" in2="mask" operator="out" result="stroke_ring"/>
+
+      <!-- ④ Dash/solid selector.
+           solid_mask: turbulence always clamped to opaque → solid stroke pass-through.
+           stripe_mask: 45° diagonal tile (feImage+feTile) → clean regular dashes.
+           f-dash-select arithmetic k2/k3 switch between them at runtime;
+           in/in2 are never changed → avoids Chrome SVG filter cache bug. -->
+      <feTurbulence id="f-dash-turb" type="turbulence" baseFrequency="0.028 0.028"
+                    numOctaves="1" seed="2" result="dash_turb"/>
+      <feColorMatrix id="f-dash-thresh" in="dash_turb" type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0 1" result="solid_mask"/>
+      <feImage id="f-dash-img" x="0" y="0" width="28" height="28"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='28' height='28' fill='black'/%3E%3Cpolygon points='0,0 14,0 0,14' fill='white'/%3E%3Cpolygon points='14,28 28,28 28,14' fill='white'/%3E%3C/svg%3E"
+        result="stripe_raw"/>
+      <feTile in="stripe_raw" result="stripe_tiled"/>
+      <feColorMatrix in="stripe_tiled" type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.333 0.333 0.334 0 0" result="stripe_mask"/>
+      <feComposite id="f-dash-select" operator="arithmetic"
+        in="solid_mask" in2="stripe_mask" k1="0" k2="1" k3="0" k4="0" result="dash_mask"/>
+      <feComposite in="stroke_ring" in2="dash_mask" operator="in" result="patterned_ring"/>
+
+      <!-- ⑤ Color (static in2 — only flood-color changes) -->
+      <feFlood id="f-stroke-flood" flood-color="#242424" flood-opacity="1" result="sc"/>
+      <feComposite in="sc" in2="patterned_ring" operator="in" result="active_stroke"/>
+
+      <!-- ⑥ Final: fill + stroke (all static, no runtime in/in2 changes) -->
+      <feMerge result="merged">
+        <feMergeNode in="fill_layer"/>
+        <feMergeNode in="active_stroke"/>
+      </feMerge>
+
+      <!-- ⑦ Distress: fractalNoise displaces the final merged output for rough/stamped edges.
+           scale=0 = completely off (no-op). Only scale+seed change at runtime, never in/in2. -->
+      <!-- Low baseFrequency = large smooth organic curves (not sharp noise).
+           Non-square freq (X vs Y) adds natural asymmetry to the distortion. -->
+      <feTurbulence id="d-turb" type="fractalNoise" baseFrequency="0.012 0.008"
+                    numOctaves="4" seed="9" result="d_noise"/>
+      <feDisplacementMap id="d-disp" in="merged" in2="d_noise"
+                         scale="0" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- Scaled-down gooey filter for the hover preview (font ~20px vs main ~160px) -->
+    <filter id="hp-filter" x="-80%" y="-80%" width="260%" height="260%"
+            color-interpolation-filters="sRGB">
+      <feGaussianBlur id="hp-blur" in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feColorMatrix id="hp-matrix" in="blur" type="matrix"
+        values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -6" result="mask"/>
+      <feComposite in="SourceGraphic" in2="mask" operator="atop"/>
+    </filter>
+  </defs>
+</svg>
+
+<div id="panel">
+  <div id="panel-header">
+    <div class="logo">Sticky</div>
+    <div class="ver">v0.9</div>
+  </div>
+
+  <div id="panel-body">
+    <div class="top-section">
+      <textarea id="text-input" rows="3" spellcheck="false">gooey</textarea>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="acc">
+      <div class="acc-head open" data-acc="typo"><span class="acc-title">Typography</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-typo">
+        <div class="font-pills">
+          <div class="font-category">Sans-serif</div>
+          <div class="font-group">
+            <button class="font-btn on" data-font="Delight">Delight</button>
+            <button class="font-btn" data-font="A2G" style="font-family:'A2G',sans-serif">에이투지체</button>
+          </div>
+          <div class="font-category" style="margin-top:6px">Serif</div>
+          <div class="font-group">
+            <button class="font-btn" data-font="LibreBaskerville" style="font-family:'LibreBaskerville',serif">Libre Baskerville</button>
+            <button class="font-btn" data-font="BookkMyungjo" style="font-family:'BookkMyungjo',serif">북크명조</button>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="sub-label">Weight</div>
+          <select class="styled-select" id="weight-select">
+            <option value="100">Thin — 100</option>
+            <option value="200">ExtraLight — 200</option>
+            <option value="300">Light — 300</option>
+            <option value="400">Regular — 400</option>
+            <option value="500">Medium — 500</option>
+            <option value="600">SemiBold — 600</option>
+            <option value="700" selected>Bold — 700</option>
+            <option value="800">ExtraBold — 800</option>
+            <option value="900">Black — 900</option>
+          </select>
+        </div>
+        <div class="control-row">
+          <span class="lbl">Kerning</span>
+          <input type="range" id="kerning" min="-0.2" max="0.5" value="-0.04" step="0.005">
+          <input type="number" class="val-input" id="kerning-val" min="-0.2" max="0.5" step="0.005" value="-0.04">
+        </div>
+        <div class="control-row">
+          <span class="lbl">Scale</span>
+          <input type="range" id="scale" min="0.15" max="2.8" value="1" step="0.01">
+          <input type="number" class="val-input" id="scale-val" min="0.15" max="2.8" step="0.01" value="1">
+        </div>
+        <!-- Line height: shown only when text has 2+ lines -->
+        <div class="control-row" id="line-height-row" style="display:none">
+          <span class="lbl">Leading</span>
+          <input type="range" id="line-height" min="0.6" max="2.5" value="1.05" step="0.05">
+          <input type="number" class="val-input" id="line-height-val" min="0.6" max="2.5" step="0.05" value="1.05">
+        </div>
+        <button class="reset-btn" id="reset-typo">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="acc">
+      <div class="acc-head" data-acc="canvas"><span class="acc-title">Canvas</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-canvas">
+        <div class="toggle-row" style="margin-bottom:10px">
+          <span class="toggle-label">Transparent BG</span>
+          <label class="toggle">
+            <input type="checkbox" id="transparent-toggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="ratio-grid" id="ratio-grid">
+          <button class="ratio-btn on" data-ratio="free">
+            <div class="ratio-icon"><svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>Full
+          </button>
+          <button class="ratio-btn" data-ratio="1:1">
+            <div class="ratio-icon"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>1:1
+          </button>
+          <button class="ratio-btn" data-ratio="3:4">
+            <div class="ratio-icon"><svg width="9" height="12" viewBox="0 0 9 12"><rect x="1" y="1" width="7" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>3:4
+          </button>
+          <button class="ratio-btn" data-ratio="4:3">
+            <div class="ratio-icon"><svg width="12" height="9" viewBox="0 0 12 9"><rect x="1" y="1" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>4:3
+          </button>
+          <button class="ratio-btn" data-ratio="16:9">
+            <div class="ratio-icon"><svg width="14" height="8" viewBox="0 0 14 8"><rect x="1" y="1" width="12" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>16:9
+          </button>
+          <button class="ratio-btn" data-ratio="9:16">
+            <div class="ratio-icon"><svg width="8" height="14" viewBox="0 0 8 14"><rect x="1" y="1" width="6" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>9:16
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STICKY -->
+    <div class="acc">
+      <div class="acc-head open" data-acc="sticky"><span class="acc-title">Sticky</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-sticky">
+        <div class="control-row">
+          <span class="lbl">Merge</span>
+          <input type="range" id="sticky-merge" min="0" max="40" value="6.5" step="0.5">
+          <input type="number" class="val-input" id="sticky-merge-val" min="0" max="40" step="0.5" value="6.5">
+        </div>
+        <div class="control-row">
+          <span class="lbl">Threshold</span>
+          <input type="range" id="sticky-thresh" min="5" max="60" value="39.5" step="0.5">
+          <input type="number" class="val-input" id="sticky-thresh-val" min="5" max="60" step="0.5" value="39.5">
+        </div>
+        <div class="control-row">
+          <span class="lbl">Cutoff</span>
+          <input type="range" id="sticky-cutoff" min="-30" max="0" value="-20.5" step="0.5">
+          <input type="number" class="val-input" id="sticky-cutoff-val" min="-30" max="0" step="0.5" value="-20.5">
+        </div>
+        <button class="reset-btn" id="reset-sticky">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- STROKE -->
+    <div class="acc">
+      <div class="acc-head" data-acc="stroke"><span class="acc-title">Stroke</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-stroke">
+        <!-- Fill toggle -->
+        <div class="toggle-row">
+          <span class="toggle-label">Fill</span>
+          <label class="toggle">
+            <input type="checkbox" id="fill-toggle" checked>
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <!-- Stroke type -->
+        <div class="sub-label" style="margin-bottom:8px">Type</div>
+        <div class="stroke-grid">
+          <button class="stroke-btn on" data-stype="off">Off</button>
+          <button class="stroke-btn"    data-stype="light">Light</button>
+          <button class="stroke-btn"    data-stype="bold">Bold</button>
+          <button class="stroke-btn"    data-stype="dashed-light">Dash L</button>
+          <button class="stroke-btn"    data-stype="dashed-bold">Dash B</button>
+        </div>
+        <!-- Stroke color -->
+        <div class="color-row" id="stroke-color-row" style="display:none">
+          <div class="swatch"><input type="color" id="stroke-color" value="#242424"><div class="swatch-fill" id="stroke-color-fill" style="background:#242424"></div></div>
+          <span class="lbl" style="width:auto;flex:1">Stroke</span>
+          <span class="hex-label" id="stroke-color-hex">#242424</span>
+        </div>
+        <button class="reset-btn" id="reset-stroke">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- DISTRESS -->
+    <div class="acc">
+      <div class="acc-head" data-acc="distress"><span class="acc-title">Distress</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-distress">
+        <div class="control-row">
+          <span class="lbl">Intensity</span>
+          <input type="range" id="distress-intensity" min="0" max="20" value="0" step="0.5">
+          <input type="number" class="val-input" id="distress-intensity-val" min="0" max="20" step="0.5" value="0">
+        </div>
+        <div class="control-row" style="margin-bottom:0">
+          <span class="lbl">Seed</span>
+          <input type="range" id="distress-seed" min="1" max="99" value="9" step="1">
+          <input type="number" class="val-input" id="distress-seed-val" min="1" max="99" step="1" value="9">
+        </div>
+        <button class="reset-btn" id="reset-distress">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+    <div class="acc">
+      <div class="acc-head" data-acc="color"><span class="acc-title">Color</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-color">
+        <div class="color-row">
+          <div class="swatch"><input type="color" id="text-color" value="#242424"><div class="swatch-fill" id="text-color-fill" style="background:#242424"></div></div>
+          <span class="lbl" style="width:auto;flex:1">Object</span>
+          <span class="hex-label" id="text-color-hex">#242424</span>
+        </div>
+        <div class="color-row">
+          <div class="swatch"><input type="color" id="bg-color" value="#f0f0f0"><div class="swatch-fill" id="bg-color-fill" style="background:#f0f0f0"></div></div>
+          <span class="lbl" style="width:auto;flex:1">Background</span>
+          <span class="hex-label" id="bg-color-hex">#f0f0f0</span>
+        </div>
+        <button class="reset-btn" id="reset-color">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- MOTION -->
+    <div class="acc">
+      <div class="acc-head" data-acc="motion"><span class="acc-title">Motion</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-motion">
+
+        <div class="toggle-row">
+          <span class="toggle-label">Enable</span>
+          <label class="toggle">
+            <input type="checkbox" id="motion-toggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+
+        <div class="motion-inner off" id="motion-inner">
+          <div class="pill-grid-2" id="motion-type-grid" style="margin-bottom:14px">
+            <button class="pill on" data-mtype="breathe">Breathe</button>
+            <button class="pill"    data-mtype="bump">Bump</button>
+            <button class="pill"    data-mtype="wave">Wave</button>
+            <button class="pill"    data-mtype="bubble">Bubble</button>
+            <button class="pill"    data-mtype="flex">Flex</button>
+            <button class="pill"    data-mtype="melt">Melt</button>
+            <button class="pill"    data-mtype="pull">Pull</button>
+            <button class="pill"    data-mtype="bounce">Bounce</button>
+          </div>
+
+          <div class="control-row" style="margin-bottom:10px">
+            <span class="lbl">Speed</span>
+            <input type="range" id="motion-speed" min="0.1" max="3" value="0.55" step="0.05">
+            <input type="number" class="val-input" id="motion-speed-val" min="0.1" max="3" step="0.05" value="0.55">
+          </div>
+
+
+          <!-- Frame controls — collapsible, shown for breathe / wave only -->
+          <div id="frame-controls">
+          <div class="frame-box">
+            <div class="frame-tag" id="frame-start-head">
+              <span>Start Frame</span><span class="frame-arrow">▸</span>
+            </div>
+            <div id="frame-start-body" style="display:none;padding-top:8px">
+              <div class="control-row">
+                <span class="lbl">Threshold</span>
+                <input type="range" id="fs-thresh" min="5" max="60" value="22" step="0.5">
+                <input type="number" class="val-input" id="fs-thresh-val" min="5" max="60" step="0.5" value="22">
+              </div>
+              <div class="control-row">
+                <span class="lbl">Cutoff</span>
+                <input type="range" id="fs-cutoff" min="-30" max="0" value="-14" step="0.5">
+                <input type="number" class="val-input" id="fs-cutoff-val" min="-30" max="0" step="0.5" value="-14">
+              </div>
+            </div>
+          </div>
+          <div class="frame-box">
+            <div class="frame-tag" id="frame-end-head">
+              <span>End Frame</span><span class="frame-arrow">▸</span>
+            </div>
+            <div id="frame-end-body" style="display:none;padding-top:8px">
+              <div class="control-row">
+                <span class="lbl">Threshold</span>
+                <input type="range" id="fe-thresh" min="5" max="60" value="36" step="0.5">
+                <input type="number" class="val-input" id="fe-thresh-val" min="5" max="60" step="0.5" value="36">
+              </div>
+              <div class="control-row">
+                <span class="lbl">Cutoff</span>
+                <input type="range" id="fe-cutoff" min="-30" max="0" value="-6" step="0.5">
+                <input type="number" class="val-input" id="fe-cutoff-val" min="-30" max="0" step="0.5" value="-6">
+              </div>
+            </div>
+          </div>
+          </div><!-- /#frame-controls -->
+
+          <div class="control-row" id="float-row" style="display:none;margin-top:10px">
+            <span class="lbl">Floating</span>
+            <input type="range" id="bubble-float" min="0" max="1" value="0.5" step="0.01">
+            <input type="number" class="val-input" id="bubble-float-val" min="0" max="1" step="0.01" value="0.5">
+          </div>
+
+          <!-- Bump: Bridge — sits between Speed and Intensity -->
+          <div id="bump-opts" style="display:none;margin-top:10px">
+            <div class="control-row">
+              <span class="lbl">Bridge</span>
+              <input type="range" id="bump-bridge" min="0" max="2" value="0.4" step="0.05">
+              <input type="number" class="val-input" id="bump-bridge-val" min="0" max="2" step="0.05" value="0.4">
+            </div>
+          </div>
+
+          <div class="control-row" style="margin-top:10px">
+            <span class="lbl">Intensity</span>
+            <input type="range" id="motion-intensity" min="0.05" max="1" value="0.3" step="0.01">
+            <input type="number" class="val-input" id="motion-intensity-val" min="0.05" max="1" step="0.01" value="0.3">
+          </div>
+
+          <!-- Bump: Direction — sits after Intensity -->
+          <div id="bump-opts-bottom" style="display:none;margin-top:10px">
+            <div style="margin-bottom:4px;font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase">Direction</div>
+            <div class="pill-grid-2" id="bump-dir-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
+              <button class="pill" data-bdir="ltr">L→R</button>
+              <button class="pill on" data-bdir="random">Random</button>
+            </div>
+          </div>
+        </div>
+        <button class="reset-btn" id="reset-motion">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="panel-footer">
+    <button class="btn-ghost" id="play-btn" style="font-size:10px;letter-spacing:.12em">▶  Play</button>
+    <button class="btn-primary" id="export-png-btn">Export PNG</button>
+    <button class="btn-ghost"   id="export-gif-btn">Export GIF (motion)</button>
+    <button class="btn-ghost"   id="export-mp4-btn">Export MP4 (motion)</button>
+  </div>
+</div>
+
+<div id="preview-area">
+  <div id="canvas-wrap">
+    <div id="canvas-content">
+      <div id="text-transform-layer">
+        <div id="sticky-text"></div>
+        <svg id="stroke-dash-svg" xmlns="http://www.w3.org/2000/svg"
+             style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none;overflow:visible"></svg>
+      </div>
+    </div>
+  </div>
+  <div id="info-bar">
+    <div class="info-item"><b>SIZE</b><span id="info-size">—</span></div>
+    <div class="info-item"><b>WEIGHT</b><span id="info-weight">Bold</span></div>
+    <div class="info-item"><b>STICKY</b><span id="info-sticky">8 / 28</span></div>
+    <div class="info-item"><b>MOTION</b><span id="info-motion">—</span></div>
+  </div>
+  <div id="preview-hud">
+    <button class="hud-btn on" id="bbox-toggle-btn" title="Toggle bounding box">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.3">
+        <rect x="1" y="1" width="11" height="11" rx="1.5" stroke-dasharray="2.5 1.5"/>
+        <circle cx="1" cy="1" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="1" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="1" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+      </svg>
+      Scale Box
+    </button>
+  </div>
+</div>
+
+<!-- Rubber-band selection + bounding box -->
+<div id="sel-rect"></div>
+<div id="bbox">
+  <div class="bbox-handle" data-corner="nw"></div>
+  <div class="bbox-handle" data-corner="ne"></div>
+  <div class="bbox-handle" data-corner="sw"></div>
+  <div class="bbox-handle" data-corner="se"></div>
+</div>
+
+<!-- Hover motion preview -->
+<div id="hover-preview">
+  <div id="hp-wrap">
+    <div id="hp-canvas">
+      <div id="hp-bg"></div>
+      <div id="hp-text"></div>
+    </div>
+    <div id="hp-label"></div>
+  </div>
+</div>
+
+<script>
+// ── Easing ─────────────────────────────────────────
+function easeOutCubic(t)    { return 1 - Math.pow(1 - t, 3); }
+function easeInOutCubic(t)  { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+const RESET_DUR = 450;
+
+// ── State ──────────────────────────────────────────
+const S = {
+  text:'gooey', fontWeight:700, fontSize:160, kerning:-0.04, scale:1.0, lineHeight:1.05,
+  fontFamily:'Delight',
+  stickyMerge:6.5, stickyThresh:39.5, stickyCutoff:-20.5,
+  textColor:'#242424', bgColor:'#f0f0f0', ratio:'free', transparentBg:false,
+  motionOn:false, motionType:'breathe', motionSpeed:0.55, motionIntensity:0.3,
+  fsThresh:22, fsCutoff:-14, feThresh:36, feCutoff:-6,
+  bubbleFloat:0.5, bumpBridge:0.4, bumpDir:'random',
+  strokeType:'off', fillOn:true, strokeColor:'#242424',
+  distressIntensity:0, distressSeed:9,
+};
+
+
+// ── DOM refs ────────────────────────────────────────
+const textInput    = document.getElementById('text-input');
+const stickyText        = document.getElementById('sticky-text');
+const textTransformLayer = document.getElementById('text-transform-layer');
+const canvasWrap        = document.getElementById('canvas-wrap');
+const previewArea  = document.getElementById('preview-area');
+const fBlur        = document.getElementById('f-blur');
+const fMorph       = document.getElementById('f-morph');
+const fBlur2       = document.getElementById('f-blur2');
+const fMatrix      = document.getElementById('f-matrix');
+const fDTurb        = document.getElementById('d-turb');
+const fDDisp        = document.getElementById('d-disp');
+const fStrokeBlur   = document.getElementById('f-stroke-blur');
+const fStrokeThresh = document.getElementById('f-stroke-thresh');
+const fStrokeFlood  = document.getElementById('f-stroke-flood');
+const fFillAlpha    = document.getElementById('f-fill-alpha');
+const fDashThresh    = document.getElementById('f-dash-thresh');
+const fDashSelect    = document.getElementById('f-dash-select');
+const strokeDashSvg  = document.getElementById('stroke-dash-svg');
+let dashG = null;
+const motionInner = document.getElementById('motion-inner');
+
+// ── Per-character rendering ─────────────────────────
+let charEls = [], charOffsets = [], charScales = [], drag = null;
+
+function renderChars() {
+  stickyText.innerHTML = '';
+  charEls = []; charOffsets = []; charScales = [];
+  S.text.split('\n').forEach(line => {
+    const lineDiv = document.createElement('div');
+    lineDiv.className = 'text-line';
+    [...line].forEach(ch => {
+      const el = document.createElement('span');
+      el.textContent = ch === ' ' ? '\u00a0' : ch;
+      lineDiv.appendChild(el);
+      charEls.push(el);
+      charOffsets.push({x:0, y:0});
+      charScales.push({x:1, y:1});
+    });
+    stickyText.appendChild(lineDiv);
+  });
+}
+
+function applyCharTransform(i) {
+  const {x, y} = charOffsets[i];
+  const {x: sx, y: sy} = charScales[i];
+  let t = `translate(${x}px,${y}px)`;
+  if (sx !== 1 || sy !== 1) t += ` scaleX(${sx.toFixed(4)}) scaleY(${sy.toFixed(4)})`;
+  charEls[i].style.transform = t;
+}
+
+// ── Selection & Bounding Box ───────────────────────
+let selectedChars = new Set();
+let selRubberDrag = null;
+let bboxMoveDrag  = null;
+let bboxScaleDrag = null;
+const bboxEl    = document.getElementById('bbox');
+const selRectEl = document.getElementById('sel-rect');
+const BBOX_PAD  = 3;
+let bboxVisible = true;
+
+function dist2D(a, b) { return Math.sqrt((a.x-b.x)**2 + (a.y-b.y)**2); }
+
+function updateBboxDisplay() {
+  if (!bboxVisible || selectedChars.size === 0) { bboxEl.style.display = 'none'; return; }
+  let minX=Infinity, minY=Infinity, maxX=-Infinity, maxY=-Infinity;
+  selectedChars.forEach(i => {
+    const r = charEls[i].getBoundingClientRect();
+    // Trim line-height padding: the span's layout box is taller than the visible glyph.
+    // 12% per side removes most of the excess half-leading without clipping ascenders.
+    const trimY = r.height * 0.12;
+    minX = Math.min(minX, r.left);
+    minY = Math.min(minY, r.top  + trimY);
+    maxX = Math.max(maxX, r.right);
+    maxY = Math.max(maxY, r.bottom - trimY);
+  });
+  if (!isFinite(minX)) { bboxEl.style.display='none'; return; }
+  bboxEl.style.left   = (minX - BBOX_PAD) + 'px';
+  bboxEl.style.top    = (minY - BBOX_PAD) + 'px';
+  bboxEl.style.width  = (maxX - minX + BBOX_PAD*2) + 'px';
+  bboxEl.style.height = (maxY - minY + BBOX_PAD*2) + 'px';
+  bboxEl.style.display = 'block';
+}
+
+function clearSelection() {
+  selectedChars.clear();
+  charEls.forEach(el => el.style.outline = '');
+  bboxEl.style.display = 'none';
+}
+
+// ── Undo history ─────────────────────────────────────
+const undoHistory = [];
+const MAX_UNDO = 50;
+
+function pushHistory() {
+  undoHistory.push({ o: charOffsets.map(o => ({...o})), s: charScales.map(s => ({...s})) });
+  if (undoHistory.length > MAX_UNDO) undoHistory.shift();
+}
+
+function popHistory() {
+  if (undoHistory.length === 0) return;
+  const snap = undoHistory.pop();
+  snap.o.forEach((o, i) => {
+    if (!charOffsets[i]) return;
+    charOffsets[i].x = o.x; charOffsets[i].y = o.y;
+    charScales[i].x  = snap.s[i].x; charScales[i].y = snap.s[i].y;
+    if (charEls[i]) applyCharTransform(i);
+  });
+  clearSelection();
+}
+
+function startBboxMove(sx, sy) {
+  bboxMoveDrag = {
+    sx, sy, lockAxis: null,
+    historyPushed: false,
+    preDragState: { o: charOffsets.map(o=>({...o})), s: charScales.map(s=>({...s})) },
+    indices: [...selectedChars],
+    initOffsets: charEls.map((_, i) => ({...charOffsets[i]})),
+  };
+}
+
+// bbox: move drag on interior, scale drag on handles
+bboxEl.addEventListener('mousedown', e => {
+  e.stopPropagation(); e.preventDefault();
+  const handle = e.target.closest('.bbox-handle');
+  if (handle) {
+    pushHistory(); // snapshot before scale
+    const corner = handle.dataset.corner;
+    const br = bboxEl.getBoundingClientRect();
+    const corners = { nw:{x:br.left,y:br.top}, ne:{x:br.right,y:br.top},
+                      sw:{x:br.left,y:br.bottom}, se:{x:br.right,y:br.bottom} };
+    const opp = { nw:'se', ne:'sw', sw:'ne', se:'nw' };
+    const anchor = corners[opp[corner]];
+    const indices = [...selectedChars];
+    const isSingle = indices.length === 1;
+    // For single-char scale: compute anchor from the CHAR's actual rect (not bbox rect)
+    let charAnchorCorner = null, initCharW = 0, initCharH = 0;
+    if (isSingle) {
+      const r0 = charEls[indices[0]].getBoundingClientRect();
+      const cac = { nw:{x:r0.right,y:r0.bottom}, ne:{x:r0.left,y:r0.bottom},
+                    sw:{x:r0.right,y:r0.top},    se:{x:r0.left,y:r0.top} };
+      charAnchorCorner = cac[corner]; // corner of char OPPOSITE to the dragged handle
+      initCharW = r0.width; initCharH = r0.height;
+    }
+    bboxScaleDrag = {
+      anchor, initMouse:{x:e.clientX, y:e.clientY}, indices, isSingle,
+      charAnchorCorner, initCharW, initCharH,
+      initScales: indices.map(i => ({...charScales[i]})),
+      initPos:     indices.map(i => { const r=charEls[i].getBoundingClientRect(); return {x:r.left+r.width/2, y:r.top+r.height/2}; }),
+      initNatural: indices.map(i => { const r=charEls[i].getBoundingClientRect();
+        return {x:r.left+r.width/2 - charOffsets[i].x*S.scale, y:r.top+r.height/2 - charOffsets[i].y*S.scale}; }),
+    };
+  } else {
+    startBboxMove(e.clientX, e.clientY);
+  }
+});
+
+// ── Drag ────────────────────────────────────────────
+canvasWrap.addEventListener('mousedown', e => {
+  const i = charEls.indexOf(e.target);
+  if (i >= 0) {
+    if (e.shiftKey) {
+      // Shift+click: toggle char in/out of multi-selection
+      if (selectedChars.has(i)) { selectedChars.delete(i); charEls[i].style.outline = ''; }
+      else selectedChars.add(i);
+      updateBboxDisplay();
+    } else {
+      // Click char: select it (keep existing multi-selection if already in it), then start move
+      if (!selectedChars.has(i)) { clearSelection(); selectedChars.add(i); updateBboxDisplay(); }
+      startBboxMove(e.clientX, e.clientY);
+    }
+  } else {
+    // Start rubber-band selection
+    clearSelection();
+    selRubberDrag = {sx:e.clientX, sy:e.clientY};
+    selRectEl.style.cssText = `display:block;left:${e.clientX}px;top:${e.clientY}px;width:0;height:0;`;
+  }
+  e.preventDefault();
+});
+
+window.addEventListener('mousemove', e => {
+  if (drag) {
+    let dx = e.clientX-drag.sx, dy = e.clientY-drag.sy;
+    if (e.shiftKey) {
+      if (!drag.lockAxis && (Math.abs(dx)>4||Math.abs(dy)>4))
+        drag.lockAxis = Math.abs(dx)>=Math.abs(dy) ? 'x' : 'y';
+      if (drag.lockAxis==='x') dy=0; if (drag.lockAxis==='y') dx=0;
+    } else { drag.lockAxis=null; }
+    charOffsets[drag.i].x = drag.ox+dx; charOffsets[drag.i].y = drag.oy+dy;
+    charEls[drag.i].style.transform = `translate(${charOffsets[drag.i].x}px,${charOffsets[drag.i].y}px)`;
+  }
+  if (selRubberDrag) {
+    const x=Math.min(e.clientX,selRubberDrag.sx), y=Math.min(e.clientY,selRubberDrag.sy);
+    const w=Math.abs(e.clientX-selRubberDrag.sx), h=Math.abs(e.clientY-selRubberDrag.sy);
+    selRectEl.style.left=x+'px'; selRectEl.style.top=y+'px';
+    selRectEl.style.width=w+'px'; selRectEl.style.height=h+'px';
+    const x2=x+w, y2=y+h;
+    charEls.forEach((el,i) => {
+      const r=el.getBoundingClientRect();
+      el.style.outline = (r.right>x&&r.left<x2&&r.bottom>y&&r.top<y2) ? '1px solid rgba(64,128,255,0.6)' : '';
+    });
+  }
+  if (bboxMoveDrag) {
+    let dx=e.clientX-bboxMoveDrag.sx, dy=e.clientY-bboxMoveDrag.sy;
+    // Push history on first significant movement so clicking without dragging doesn't pollute undo
+    if (!bboxMoveDrag.historyPushed && (Math.abs(dx)>3||Math.abs(dy)>3)) {
+      undoHistory.push(bboxMoveDrag.preDragState);
+      if (undoHistory.length > MAX_UNDO) undoHistory.shift();
+      bboxMoveDrag.historyPushed = true;
+    }
+    if (e.shiftKey) {
+      if (!bboxMoveDrag.lockAxis && (Math.abs(dx)>4||Math.abs(dy)>4))
+        bboxMoveDrag.lockAxis = Math.abs(dx)>=Math.abs(dy) ? 'x' : 'y';
+      if (bboxMoveDrag.lockAxis==='x') dy=0; if (bboxMoveDrag.lockAxis==='y') dx=0;
+    } else { bboxMoveDrag.lockAxis=null; }
+    bboxMoveDrag.indices.forEach(i => {
+      charOffsets[i].x = bboxMoveDrag.initOffsets[i].x + dx/S.scale;
+      charOffsets[i].y = bboxMoveDrag.initOffsets[i].y + dy/S.scale;
+      applyCharTransform(i);
+    });
+    updateBboxDisplay();
+  }
+  if (bboxScaleDrag) {
+    const { isSingle, charAnchorCorner, initCharW, initCharH,
+            initScales, initPos, initNatural, anchor, initMouse, indices } = bboxScaleDrag;
+    if (isSingle) {
+      // Single char: apply CSS scaleX/scaleY; anchor corner of the char stays fixed.
+      // Scale factors = ratio of current mouse distance to char anchor vs initial distance.
+      const initDx = Math.abs(initMouse.x - charAnchorCorner.x) || 1;
+      const initDy = Math.abs(initMouse.y - charAnchorCorner.y) || 1;
+      let fx = Math.max(0.05, Math.abs(e.clientX - charAnchorCorner.x) / initDx);
+      let fy = Math.max(0.05, Math.abs(e.clientY - charAnchorCorner.y) / initDy);
+      if (e.shiftKey) {
+        const f = Math.max(0.05, dist2D({x:e.clientX,y:e.clientY}, charAnchorCorner) /
+                                  Math.max(1, dist2D(initMouse, charAnchorCorner)));
+        fx = fy = f;
+      }
+      const i = indices[0];
+      const ip = initPos[0], nat = initNatural[0];
+      // Keep anchor corner fixed: new center = anchor + (initCenter − anchor) * scale
+      charOffsets[i].x = (charAnchorCorner.x + (ip.x - charAnchorCorner.x)*fx - nat.x) / S.scale;
+      charOffsets[i].y = (charAnchorCorner.y + (ip.y - charAnchorCorner.y)*fy - nat.y) / S.scale;
+      charScales[i].x  = initScales[0].x * fx;
+      charScales[i].y  = initScales[0].y * fy;
+      applyCharTransform(i);
+    } else {
+      // Multi char: proportional repositioning + uniform CSS scale
+      const f = Math.max(0.05, dist2D({x:e.clientX,y:e.clientY}, anchor) /
+                                Math.max(1, dist2D(initMouse, anchor)));
+      indices.forEach((i, k) => {
+        const nat=initNatural[k], ip=initPos[k];
+        charOffsets[i].x = (anchor.x + (ip.x-anchor.x)*f - nat.x) / S.scale;
+        charOffsets[i].y = (anchor.y + (ip.y-anchor.y)*f - nat.y) / S.scale;
+        charScales[i].x  = initScales[k].x * f;
+        charScales[i].y  = initScales[k].y * f;
+        applyCharTransform(i);
+      });
+    }
+    updateBboxDisplay();
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  if (drag) { charEls[drag.i].style.cursor='grab'; drag=null; }
+  if (selRubberDrag) {
+    selRectEl.style.display='none';
+    const x=parseFloat(selRectEl.style.left), y=parseFloat(selRectEl.style.top);
+    const w=parseFloat(selRectEl.style.width), h=parseFloat(selRectEl.style.height);
+    const newSel=[];
+    charEls.forEach((el,i) => {
+      const r=el.getBoundingClientRect();
+      if(r.right>x&&r.left<x+w&&r.bottom>y&&r.top<y+h) newSel.push(i);
+    });
+    charEls.forEach(el => el.style.outline='');
+    selectedChars = new Set(newSel);
+    updateBboxDisplay();
+    selRubberDrag=null;
+  }
+  if (bboxMoveDrag) bboxMoveDrag=null;
+  if (bboxScaleDrag) bboxScaleDrag=null;
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') clearSelection();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault(); popHistory();
+  }
+  if (e.key === ' ' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+    e.preventDefault(); toggleMotion(!S.motionOn);
+  }
+});
+
+canvasWrap.addEventListener('touchstart', e => {
+  const t=e.changedTouches[0];
+  const sp=document.elementFromPoint(t.clientX,t.clientY);
+  const i=sp?charEls.indexOf(sp):-1;
+  if (i>=0) {
+    if (!selectedChars.has(i)) { clearSelection(); selectedChars.add(i); updateBboxDisplay(); }
+    startBboxMove(t.clientX,t.clientY);
+  }
+  e.preventDefault();
+},{passive:false});
+
+window.addEventListener('touchmove', e => {
+  const t=e.changedTouches[0];
+  if (drag) {
+    charOffsets[drag.i].x=drag.ox+t.clientX-drag.sx; charOffsets[drag.i].y=drag.oy+t.clientY-drag.sy;
+    charEls[drag.i].style.transform=`translate(${charOffsets[drag.i].x}px,${charOffsets[drag.i].y}px)`;
+  }
+  if (bboxMoveDrag) {
+    const dx=t.clientX-bboxMoveDrag.sx, dy=t.clientY-bboxMoveDrag.sy;
+    bboxMoveDrag.indices.forEach(i => {
+      charOffsets[i].x=bboxMoveDrag.initOffsets[i].x+dx/S.scale;
+      charOffsets[i].y=bboxMoveDrag.initOffsets[i].y+dy/S.scale;
+      charEls[i].style.transform=`translate(${charOffsets[i].x}px,${charOffsets[i].y}px)`;
+    }); updateBboxDisplay();
+  }
+  e.preventDefault();
+},{passive:false});
+
+window.addEventListener('touchend', ()=>{ drag=null; bboxMoveDrag=null; });
+
+// ── Canvas sizing ──────────────────────────────────
+const RATIOS = {'free':null,'1:1':[1,1],'3:4':[3,4],'4:3':[4,3],'16:9':[16,9],'9:16':[9,16]};
+
+function applyCanvasSize() {
+  const W = previewArea.clientWidth, H = previewArea.clientHeight - 26;
+  const r = RATIOS[S.ratio];
+  let w, h;
+  if (!r) { w=W; h=H; canvasWrap.classList.add('full-mode'); }
+  else {
+    canvasWrap.classList.remove('full-mode');
+    const asp=r[0]/r[1], pad=64;
+    w=W-pad; h=w/asp;
+    if (h>H-pad){h=H-pad; w=h*asp;}
+    w=Math.round(w); h=Math.round(h);
+  }
+  canvasWrap.style.width=w+'px'; canvasWrap.style.height=h+'px';
+  document.getElementById('info-size').textContent=`${w}×${h}`;
+  recalcFit();
+}
+
+// ── Motion transform ───────────────────────────────
+const mot = {x:0, y:0, r:0, s:1, sx:1, sy:1};
+
+// ── Fit-scale system ───────────────────────────────
+let fitScale = 1, fitTarget = 1, _fitTimer = null, _fitAF = null;
+
+function compositeTransform() {
+  const ef = S.motionOn ? 1 : fitScale;
+  textTransformLayer.style.transform =
+    `translate(${mot.x}px,${mot.y}px) rotate(${mot.r}deg) scaleX(${mot.sx}) scaleY(${mot.sy}) scale(${S.scale * mot.s * ef}) translateZ(0)`;
+}
+
+function recalcFit() {
+  clearTimeout(_fitTimer);
+  _fitTimer = setTimeout(() => {
+    if (S.motionOn) return;
+    const prev = fitScale; fitScale = 1; compositeTransform();
+    const tr = stickyText.getBoundingClientRect();
+    const cr = canvasWrap.getBoundingClientRect();
+    fitScale = prev; compositeTransform();
+    if (!cr.width || !tr.width) return;
+    const needed = Math.min(1, cr.width / tr.width, cr.height / tr.height);
+    if (Math.abs(needed - fitTarget) > 0.001) { fitTarget = needed; _animFitScale(); }
+  }, 60);
+}
+
+function _animFitScale() {
+  if (_fitAF) cancelAnimationFrame(_fitAF);
+  (function step() {
+    const d = fitTarget - fitScale;
+    if (Math.abs(d) < 0.0005) { fitScale = fitTarget; compositeTransform(); _fitAF = null; return; }
+    fitScale += d * 0.15;
+    compositeTransform();
+    _fitAF = requestAnimationFrame(step);
+  })();
+}
+
+// ── Filter ─────────────────────────────────────────
+const hpBlur   = document.getElementById('hp-blur');
+const hpMatrix = document.getElementById('hp-matrix');
+
+function updateFilter(blur, thresh, cutoff) {
+  const b  = blur   ?? S.stickyMerge;
+  const tt = thresh ?? S.stickyThresh;
+  const c  = cutoff ?? S.stickyCutoff;
+
+  const isSerif = S.fontFamily === 'LibreBaskerville' || S.fontFamily === 'BookkMyungjo';
+  const blurVal  = Math.max(0, b);
+  fBlur.setAttribute('stdDeviation', blurVal.toFixed(2));
+  // Serif fonts have thinner strokes → need more dilation to bridge when close.
+  // Serif: thinner/variable strokes → faster alpha decay → need more dilation+re-blur
+  // to build bridges as thick as sans-serif's uniform thick strokes.
+  const morphMult = isSerif ? 0.40 : 0.12;
+  fMorph.setAttribute('radius', (blurVal * morphMult).toFixed(2));
+  // Second blur rounds the hard dilation edges into organic liquid curves.
+  fBlur2.setAttribute('stdDeviation', isSerif ? (blurVal * 0.28).toFixed(2) : '0');
+  fMatrix.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${tt} ${c}`);
+  stickyText.style.filter = (b > 0 || S.strokeType !== 'off' || S.distressIntensity > 0) ? 'url(#sticky-filter)' : 'none';
+
+  // Keep the hover-preview filter in sync (proportionally scaled blur).
+  const hpScale = 20 / Math.max(S.fontSize, 1);
+  hpBlur.setAttribute('stdDeviation', (Math.max(0, b * hpScale)).toFixed(2));
+  hpMatrix.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${tt} ${c}`);
+
+  applyStroke();
+  applyDistress();
+}
+
+// ── Distress ───────────────────────────────────────
+function applyDistress() {
+  fDDisp.setAttribute('scale', S.distressIntensity);
+  fDTurb.setAttribute('seed',  S.distressSeed);
+}
+
+// ── Stroke ─────────────────────────────────────────
+const STROKE_BLUR = { off:0, light:4, bold:8.5, 'dashed-light':4, 'dashed-bold':8.5 };
+
+function buildDashSvg() {
+  const svgNS = 'http://www.w3.org/2000/svg';
+  strokeDashSvg.innerHTML = '';
+  dashG = document.createElementNS(svgNS, 'g');
+
+  const lines  = S.text.split('\n');
+  const n      = lines.length;
+  const fs     = S.fontSize;
+  const lh     = S.lineHeight;
+  const isBold = S.strokeType === 'dashed-bold';
+  const sw     = isBold ? 5 : 2;
+  const dash   = fs * (isBold ? 0.12 : 0.10);
+  const gap    = fs * (isBold ? 0.07 : 0.06);
+  const cx     = textTransformLayer.offsetWidth  / 2;
+  const cy     = textTransformLayer.offsetHeight / 2;
+
+  lines.forEach((line, i) => {
+    const txt = document.createElementNS(svgNS, 'text');
+    txt.setAttribute('x', cx);
+    txt.setAttribute('y', cy + (i - (n - 1) / 2) * lh * fs);
+    txt.setAttribute('text-anchor', 'middle');
+    txt.setAttribute('dominant-baseline', 'central');
+    txt.setAttribute('font-family', `'${S.fontFamily}',system-ui,sans-serif`);
+    txt.setAttribute('font-size', fs + 'px');
+    txt.setAttribute('font-weight', S.fontWeight);
+    txt.setAttribute('letter-spacing', S.kerning + 'em');
+    txt.setAttribute('fill', 'none');
+    txt.setAttribute('stroke', S.strokeColor);
+    txt.setAttribute('stroke-width', sw);
+    txt.setAttribute('stroke-dasharray', `${dash} ${gap}`);
+    txt.setAttribute('stroke-linecap', 'round');
+    txt.textContent = line || ' ';
+    dashG.appendChild(txt);
+  });
+
+  strokeDashSvg.appendChild(dashG);
+}
+
+function syncDashTransform() {
+  // no-op: strokeDashSvg is inside textTransformLayer — moves with it automatically
+}
+
+function applyStroke() {
+  const type     = S.strokeType;
+  const isDashed = type === 'dashed-light' || type === 'dashed-bold';
+
+  const fillAlpha = S.fillOn ? '0 0 0 1 0' : '0 0 0 0 0';
+  fFillAlpha.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  ${fillAlpha}`);
+
+  // For dashed: no filter-based stroke ring (SVG overlay handles it)
+  fStrokeBlur.setAttribute('stdDeviation', isDashed ? 0 : (STROKE_BLUR[type] ?? 0));
+  fDashSelect.setAttribute('k2', '1');
+  fDashSelect.setAttribute('k3', '0');
+  fStrokeFlood.setAttribute('flood-color', S.strokeColor);
+
+  if (isDashed) {
+    strokeDashSvg.style.display = 'block';
+    buildDashSvg();
+  } else {
+    strokeDashSvg.style.display = 'none';
+    dashG = null;
+  }
+}
+
+// ── Line height visibility ──────────────────────────
+function updateLineHeightVisibility() {
+  const multi = S.text.includes('\n');
+  document.getElementById('line-height-row').style.display = multi ? 'flex' : 'none';
+}
+
+// ── Apply all ──────────────────────────────────────
+const WEIGHT_NAMES = {100:'Thin',200:'ExtraLight',300:'Light',400:'Regular',
+  500:'Medium',600:'SemiBold',700:'Bold',800:'ExtraBold',900:'Black'};
+
+function applyAll() {
+  stickyText.style.fontFamily    = `'${S.fontFamily}',system-ui,sans-serif`;
+  stickyText.style.fontWeight    = S.fontWeight;
+  stickyText.style.fontSize      = S.fontSize + 'px';
+  stickyText.style.letterSpacing = S.kerning + 'em';
+  stickyText.style.lineHeight    = S.lineHeight;
+  stickyText.style.color         = S.textColor;
+  canvasWrap.style.background    = S.transparentBg ? '' : S.bgColor;
+  canvasWrap.classList.toggle('canvas-transparent', S.transparentBg);
+  compositeTransform();
+  if (!S.motionOn) updateFilter();
+  else if (['bubble','flex','melt','pull','bounce'].includes(S.motionType)) updateFilter();
+  document.getElementById('info-weight').textContent = WEIGHT_NAMES[S.fontWeight] || S.fontWeight;
+  document.getElementById('info-sticky').textContent = `${S.stickyMerge} / ${S.stickyThresh}`;
+  recalcFit();
+}
+
+// ── Motion engine ──────────────────────────────────
+let animFrame = null, animStart = null;
+const lerp = (a,b,t) => a + (b-a)*t;
+const hash  = s => { const v = Math.sin(s) * 43758.5453123; return v - Math.floor(v); };
+
+function applyFrameFilter(t) {
+  updateFilter(S.stickyMerge, lerp(S.fsThresh,S.feThresh,t), lerp(S.fsCutoff,S.feCutoff,t));
+}
+
+function startMotion() {
+  stopMotion(); animStart = null;
+  let easeInStart = null;
+
+  function tick(ts) {
+    if (!animStart) { animStart = ts; easeInStart = ts; }
+    const rawT = (ts - animStart) / 1000;
+    const t    = rawT * S.motionSpeed;
+    const phi  = t * Math.PI * 2;
+    // Ease-in over 450ms so motion always starts from current visual state
+    const easeInP = Math.min(1, (ts - easeInStart) / 450);
+    const I    = S.motionIntensity * easeOutCubic(easeInP);
+    const osc  = Math.sin(phi * 0.7);
+    const lerpT = (osc + 1) / 2;
+
+    if (S.motionType === 'breathe') {
+      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0;
+      mot.s = 1 + osc * I * 0.13;
+      stickyText.style.letterSpacing = S.kerning + 'em';
+      charEls.forEach((el, i) => {
+        el.style.filter = '';
+        applyCharTransform(i);
+      });
+      applyFrameFilter(lerpT); compositeTransform();
+
+    } else if (S.motionType === 'bump') {
+      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+      stickyText.style.letterSpacing = S.kerning + 'em';
+      const n = charEls.length || 1;
+
+      let peakExpand = 0;
+
+      if (S.bumpDir === 'ltr') {
+        // Gaussian traveling peak: single bump moves cleanly L→R, chars at rest stay baseline.
+        // peakPos travels -1 → n+1 over one cycle so the bump fully enters and exits the word.
+        const phaseFrac = ((phi * 0.5) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2);
+        const peakPos   = phaseFrac * (n + 5) - 2.5;
+        const sigma = 1.0; // ~1 char wide; neighbors get partial lift for gooey bridging
+        charEls.forEach((el, i) => {
+          const dist = i - peakPos;
+          const wave = Math.exp(-(dist * dist) / (2 * sigma * sigma));
+          peakExpand = Math.max(peakExpand, wave);
+
+          const scaleX = 1 + wave * I * 0.65;
+          const scaleY = 1 - wave * I * 0.22;
+          el.style.filter = '';
+          const {x, y} = charOffsets[i];
+          const {x:csx, y:csy} = charScales[i];
+          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+        });
+      } else {
+        // Random: each char oscillates at its own phase — no directional bias.
+        charEls.forEach((el, i) => {
+          const p    = phi * 0.5 + hash(i * 1337.7 + 42) * Math.PI * 2;
+          const wave = Math.sin(p);
+          peakExpand = Math.max(peakExpand, Math.max(0, wave));
+
+          const scaleX = 1 + wave * I * 0.55;
+          const scaleY = 1 - wave * I * 0.18;
+          el.style.filter = '';
+          const {x, y} = charOffsets[i];
+          const {x:csx, y:csy} = charScales[i];
+          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+        });
+      }
+
+      // Bridge: small blur increase + threshold reduction so overlapping char halos
+      // form clean gooey connections — NOT a global blur dump.
+      // Glyph alpha-threshold stays ~constant so chars don't look fatter/blurrier.
+      const easeInRatio = S.motionIntensity > 0 ? I / S.motionIntensity : 0;
+      const smoothExpand = Math.pow(peakExpand, 0.7) * easeInRatio;
+      const bFactor = smoothExpand * S.bumpBridge;
+      updateFilter(
+        S.stickyMerge * (1 + bFactor * 0.20),   // tiny blur increase (halo barely grows)
+        S.stickyThresh - bFactor * 7,            // threshold eases → overlapping halos connect
+        S.stickyCutoff + bFactor * 3.5           // cutoff follows to keep glyph core stable
+      );
+      compositeTransform();
+
+    } else if (S.motionType === 'wave') {
+      const p = Math.sin(phi * 0.5);
+      mot.sx = 1 + p*I*0.32; mot.sy=1; mot.x=p*I*6; mot.y=0; mot.r=0; mot.s=1;
+      stickyText.style.letterSpacing = (S.kerning + p*I*0.09) + 'em';
+      applyFrameFilter(lerpT); compositeTransform();
+
+    } else if (S.motionType === 'bubble') {
+      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+      stickyText.style.letterSpacing = S.kerning + 'em';
+      const FL = S.bubbleFloat;
+      charEls.forEach((el, i) => {
+        const r1 = 0.6 + (i*0.37%1)*1.1;
+        const r2 = 0.4 + (i*0.61%1)*1.3;
+        const fq = 0.15 + (i*0.19%1)*0.18;
+        const osc1   = Math.sin(phi*r1 + i*1.1);
+        const osc2   = Math.sin(phi*r2 + i*2.3);
+        const floatY = Math.sin(phi*fq + i*0.9) * FL * 36;
+        const sx   = 1 + osc1*I*0.55;
+        const skew = osc2*I*22;
+        const {x,y} = charOffsets[i];
+        const {x:csx, y:csy} = charScales[i];
+        el.style.transform = `translate(${x}px,${y+floatY}px) scaleX(${(csx*sx).toFixed(4)}) scaleY(${csy.toFixed(4)}) skewX(${skew}deg)`;
+      });
+      compositeTransform();
+
+    } else if (S.motionType === 'flex') {
+      mot.sy=1; mot.sx=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+      stickyText.style.letterSpacing = S.kerning + 'em';
+      const n = charEls.length || 1;
+
+      const beatDur      = 0.55 / S.motionSpeed;
+      const beatIdx      = Math.floor(rawT / beatDur);
+      const beatProgress = (rawT % beatDur) / beatDur;
+
+      const snapRatio = 0.5;
+      const easeT = beatProgress < snapRatio
+        ? (1 - Math.cos(Math.PI * beatProgress / snapRatio)) / 2
+        : 1;
+
+      const spread = I * 0.8;
+
+      const numOblique = Math.floor(n * 0.3);
+      function obliqueSet(bIdx) {
+        if (numOblique <= 0) return new Set();
+        const ranked = [...Array(n).keys()].sort((a, b) =>
+          hash(bIdx * 137.1 + a * 311.7) - hash(bIdx * 137.1 + b * 311.7));
+        return new Set(ranked.slice(0, numOblique));
+      }
+      const curObl = obliqueSet(beatIdx);
+      const prvObl = obliqueSet(beatIdx - 1);
+
+      charEls.forEach((el, i) => {
+        const tSx   = Math.max(0.2, 1 + (hash( beatIdx   *127.1 + i*311.7) - 0.5) * 2 * spread);
+        const tSkew = curObl.has(i) ? (hash( beatIdx   *269.5 + i*183.3) - 0.5) * 2 * I * 24 : 0;
+        const pSx   = Math.max(0.2, 1 + (hash((beatIdx-1)*127.1 + i*311.7) - 0.5) * 2 * spread);
+        const pSkew = prvObl.has(i) ? (hash((beatIdx-1)*269.5 + i*183.3) - 0.5) * 2 * I * 24 : 0;
+
+        const curSx   = pSx   + (tSx   - pSx)   * easeT;
+        const curSkew = pSkew + (tSkew - pSkew) * easeT;
+
+        const {x,y} = charOffsets[i];
+        const {x:csx, y:csy} = charScales[i];
+        el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*curSx).toFixed(4)}) scaleY(${csy.toFixed(4)}) skewX(${curSkew}deg)`;
+      });
+
+      compositeTransform();
+
+    } else if (S.motionType === 'melt') {
+      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+      const n = charEls.length || 1;
+
+      // Each character drips downward at its own slow, organic rate.
+      // At the low point it spreads wider (mass conservation) and the
+      // filter blurs more to merge neighbouring drips into gooey bridges.
+      charEls.forEach((el, i) => {
+        const rate   = 0.22 + (i * 0.31 % 1) * 0.28;          // 0.22–0.50 unique per char
+        const phase  = i * 1.57 + i * i * 0.09;
+        const drip   = Math.sin(phi * rate + phase);            // –1 → 1
+        const drip01 = (drip + 1) / 2;                         // 0 → 1
+
+        const dropY = drip01 * I * 45;                          // max 45 px droop
+        const sx    = 1 + drip01 * I * 0.40;                   // widens at bottom
+        const sy    = 1 - drip01 * I * 0.14;                   // slight vertical squash
+
+        const {x, y} = charOffsets[i];
+        const {x:csx, y:csy} = charScales[i];
+        el.style.transform = `translate(${x}px,${y + dropY}px) scaleX(${(csx * sx).toFixed(4)}) scaleY(${(csy * sy).toFixed(4)})`;
+        el.style.filter = '';
+      });
+
+      // Slow global kerning pulse — chars drift toward each other,
+      // triggering gooey bridges, then pull apart.
+      const kOsc = Math.sin(phi * 0.18);
+      stickyText.style.letterSpacing = (S.kerning + kOsc * I * 0.07) + 'em';
+
+      // Filter stays active throughout; extra blur proportional to intensity.
+      updateFilter(S.stickyMerge * (1 + I * 0.55), S.stickyThresh, S.stickyCutoff);
+      compositeTransform();
+
+    } else if (S.motionType === 'bounce') {
+      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+      const n = charEls.length || 1;
+      stickyText.style.letterSpacing = S.kerning + 'em';
+
+      // Stadium wave: each char hops up in sequence L→R.
+      // max(0, sin) gives a clean discrete hop — each char is airborne for exactly
+      // half the cycle, at rest for the other half, with clear sequential stagger.
+      const stagger = 0.50; // phase span across word (fraction of 2π)
+      charEls.forEach((el, i) => {
+        const offset = (i / Math.max(n - 1, 1)) * stagger * Math.PI * 2;
+        const sinV   = Math.sin(phi * 0.45 - offset);
+        const hop    = Math.max(0, sinV);   // 0 = grounded, 1 = peak
+
+        const ty     = -hop * I * 44;
+        const scaleX = 1 - hop * I * 0.06;
+        const scaleY = 1 + hop * I * 0.04;
+
+        el.style.filter = '';
+        const {x, y} = charOffsets[i];
+        const {x:csx, y:csy} = charScales[i];
+        el.style.transform = `translate(${x}px,${y+ty}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+      });
+
+      updateFilter();
+      compositeTransform();
+
+    } else if (S.motionType === 'pull') {
+      // PULL: single arc — compress (pullT:-1) → stretch (pullT:+1) → return.
+      // The compressed state flows directly into stretch with no gap.
+      mot.x=0; mot.y=0; mot.r=0; mot.s=1;
+
+      const cycle = (phi * 0.42) % (Math.PI * 2);
+      const t = cycle / (Math.PI * 2); // 0→1
+      // P1: compress peak  P2: stretch peak  P3: stretch hold end
+      const P1=0.24, P2=0.58, P3=0.76;
+      let pullT; // -1=max compress, 0=neutral, +1=max stretch
+      if (t < P1) {
+        pullT = -easeOutCubic(t / P1);                               // 0 → -1
+      } else if (t < P2) {
+        pullT = -1 + 2 * easeInOutCubic((t - P1) / (P2 - P1));      // -1 → +1 (smooth)
+      } else if (t < P3) {
+        const vp = (t - P2) / (P3 - P2);
+        pullT = 1 - Math.sin(vp * Math.PI * 3) * 0.055 * (1 - vp); // hold ~1, micro-oscillation
+      } else {
+        pullT = easeOutCubic(1 - (t - P3) / (1 - P3));              // +1 → 0
+      }
+
+      if (pullT <= 0) {
+        // COMPRESS: entire container narrows — "pressed from both sides"
+        mot.sx = 1 + pullT * I * 0.68;   // at pullT=-1: sx = 1 - I*0.68
+        mot.sy = 1 - pullT * I * 0.12;   // pullT negative → sy grows
+        charEls.forEach((el, i) => { el.style.filter = ''; applyCharTransform(i); });
+        stickyText.style.letterSpacing = S.kerning + 'em';
+      } else {
+        // STRETCH: each glyph widens individually; letter-spacing tightens to keep chars connected
+        mot.sx = 1; mot.sy = 1;
+        const cSx = 1 + pullT * I * 0.65;
+        const cSy = 1 - pullT * I * 0.06;
+        charEls.forEach((el, i) => {
+          el.style.filter = '';
+          const {x, y} = charOffsets[i];
+          const {x: csx, y: csy} = charScales[i];
+          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx * cSx).toFixed(4)}) scaleY(${(csy * cSy).toFixed(4)})`;
+        });
+        stickyText.style.letterSpacing = (S.kerning - pullT * I * 0.05) + 'em';
+      }
+
+      // Filter: minimal at compress (preserve shape); moderate at stretch (gooey tendrils)
+      const absPull = Math.abs(pullT);
+      const isStr   = pullT > 0;
+      updateFilter(
+        S.stickyMerge * (1 + absPull * (isStr ? 0.85 : 0.40) * I),
+        S.stickyThresh - absPull * (isStr ? 6 : 3) * I,
+        S.stickyCutoff + absPull * (isStr ? 3 : 2) * I
+      );
+      compositeTransform();
+
+    }
+
+    animFrame = requestAnimationFrame(tick);
+  }
+  animFrame = requestAnimationFrame(tick);
+}
+
+function stopMotion() {
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  mot.x=0; mot.y=0; mot.r=0; mot.s=1; mot.sx=1; mot.sy=1;
+  stickyText.style.letterSpacing = S.kerning + 'em';
+  charEls.forEach((el,i) => {
+    applyCharTransform(i);
+    el.style.filter = '';
+  });
+  updateFilter(); compositeTransform();
+}
+
+function fmtVal(v) {
+  const n = parseFloat(v);
+  if (isNaN(n)) return v;
+  // strip trailing zeros up to 3 decimal places
+  return parseFloat(n.toFixed(3));
+}
+
+function setSlider(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+  const vi = document.getElementById(id + '-val');
+  if (vi) vi.value = fmtVal(val);
+}
+
+// ── Accordion ──────────────────────────────────────
+document.querySelectorAll('.acc-head').forEach(h => {
+  h.addEventListener('click', () => {
+    const b = document.getElementById('acc-'+h.dataset.acc);
+    const open = b.classList.contains('open');
+    b.classList.toggle('open',!open); h.classList.toggle('open',!open);
+  });
+});
+
+// ── Generic bindings ───────────────────────────────
+function bindRange(id, key) {
+  const el = document.getElementById(id);
+  const vi = document.getElementById(id + '-val');
+  if (!el) return;
+  el.addEventListener('input', () => {
+    S[key] = parseFloat(el.value);
+    if (vi) vi.value = fmtVal(el.value);
+    applyAll();
+  });
+  if (vi) {
+    vi.value = fmtVal(el.value);
+    const commit = () => {
+      let v = parseFloat(vi.value);
+      if (isNaN(v)) { vi.value = fmtVal(el.value); return; }
+      v = Math.min(parseFloat(el.max), Math.max(parseFloat(el.min), v));
+      el.value = v; vi.value = fmtVal(v);
+      S[key] = v; applyAll();
+    };
+    vi.addEventListener('change', commit);
+    vi.addEventListener('keydown', e => { if (e.key === 'Enter') { commit(); vi.blur(); } });
+  }
+}
+function bindColor(inputId, key, fillId, hexId) {
+  const inp  = document.getElementById(inputId);
+  const fill = document.getElementById(fillId);
+  const hex  = document.getElementById(hexId);
+  inp.addEventListener('input', () => {
+    S[key] = inp.value;
+    fill.style.background = inp.value;
+    hex.textContent = inp.value;
+    applyAll();
+  });
+}
+
+// ── Text input: max 3 lines ────────────────────────
+textInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && textInput.value.split('\n').length >= 3) e.preventDefault();
+});
+textInput.addEventListener('paste', e => {
+  e.preventDefault();
+  const paste = (e.clipboardData || window.clipboardData).getData('text');
+  const start = textInput.selectionStart, end = textInput.selectionEnd;
+  const before = textInput.value.slice(0, start), after = textInput.value.slice(end);
+  textInput.value = (before + paste + after).split('\n').slice(0, 3).join('\n');
+  S.text = textInput.value;
+  updateLineHeightVisibility();
+  renderChars(); applyAll();
+});
+textInput.addEventListener('input', () => {
+  const lines = textInput.value.split('\n');
+  if (lines.length > 3) textInput.value = lines.slice(0, 3).join('\n');
+  S.text = textInput.value;
+  updateLineHeightVisibility();
+  renderChars(); applyAll();
+});
+
+// ── Font definitions ───────────────────────────────
+const FONT_WEIGHTS = {
+  'Delight': [
+    {v:'100',l:'Thin — 100'}, {v:'200',l:'ExtraLight — 200'}, {v:'300',l:'Light — 300'},
+    {v:'400',l:'Regular — 400'}, {v:'500',l:'Medium — 500'}, {v:'600',l:'SemiBold — 600'},
+    {v:'700',l:'Bold — 700'}, {v:'800',l:'ExtraBold — 800'}, {v:'900',l:'Black — 900'},
+  ],
+  'LibreBaskerville': [
+    {v:'400',l:'Regular — 400'}, {v:'500',l:'Medium — 500'},
+    {v:'600',l:'SemiBold — 600'}, {v:'700',l:'Bold — 700'},
+  ],
+};
+
+function updateWeightOptions() {
+  const sel = document.getElementById('weight-select');
+  const weights = FONT_WEIGHTS[S.fontFamily] || FONT_WEIGHTS['Delight'];
+  const prev = sel.value;
+  sel.innerHTML = weights.map(w => `<option value="${w.v}">${w.l}</option>`).join('');
+  // pick closest available weight
+  const available = weights.map(w => parseInt(w.v));
+  const target = parseInt(prev);
+  const closest = available.reduce((a, b) => Math.abs(b - target) < Math.abs(a - target) ? b : a);
+  sel.value = String(closest);
+  S.fontWeight = closest;
+}
+
+const FONT_DEFAULTS = {
+  'Delight':           { stickyMerge:6.5, stickyThresh:39.5, stickyCutoff:-20.5, kerning:-0.04 },
+  'LibreBaskerville':  { stickyMerge:5.0, stickyThresh:50.5, stickyCutoff:-18.5, kerning:-0.09 },
+};
+
+function applyFontStickyDefaults(fontName) {
+  const d = FONT_DEFAULTS[fontName];
+  if (!d) return;
+  const t0 = performance.now();
+  const startMerge   = S.stickyMerge;
+  const startThresh  = S.stickyThresh;
+  const startCutoff  = S.stickyCutoff;
+  const startKerning = S.kerning;
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / 350);
+    const e = easeOutCubic(p);
+    S.stickyMerge  = startMerge   + (d.stickyMerge  - startMerge)   * e;
+    S.stickyThresh = startThresh  + (d.stickyThresh  - startThresh)  * e;
+    S.stickyCutoff = startCutoff  + (d.stickyCutoff  - startCutoff)  * e;
+    S.kerning      = startKerning + (d.kerning       - startKerning)  * e;
+    setSlider('sticky-merge',  S.stickyMerge);
+    setSlider('sticky-thresh', S.stickyThresh);
+    setSlider('sticky-cutoff', S.stickyCutoff);
+    setSlider('kerning',       S.kerning);
+    applyAll();
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+document.querySelectorAll('.font-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    S.fontFamily = btn.dataset.font;
+    updateWeightOptions();
+    applyFontStickyDefaults(S.fontFamily);
+  });
+});
+
+document.getElementById('weight-select').addEventListener('change', e => {
+  S.fontWeight = parseInt(e.target.value); applyAll();
+});
+
+bindRange('kerning',       'kerning');
+bindRange('scale',         'scale');
+bindRange('line-height',   'lineHeight');
+bindRange('sticky-merge',  'stickyMerge');
+bindRange('sticky-thresh', 'stickyThresh');
+bindRange('sticky-cutoff', 'stickyCutoff');
+bindColor('text-color','textColor','text-color-fill','text-color-hex');
+bindColor('bg-color',  'bgColor',  'bg-color-fill',  'bg-color-hex');
+
+// ── Distress bindings ───────────────────────────────
+bindRange('distress-intensity', 'distressIntensity');
+bindRange('distress-seed',      'distressSeed');
+
+// ── Stroke bindings ─────────────────────────────────
+function syncStrokeUI() {
+  const on = S.strokeType !== 'off';
+  document.getElementById('stroke-color-row').style.display = on ? 'flex' : 'none';
+}
+
+document.querySelectorAll('.stroke-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stroke-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    S.strokeType = btn.dataset.stype;
+    syncStrokeUI();
+    updateFilter();
+  });
+});
+
+document.getElementById('fill-toggle').addEventListener('change', e => {
+  S.fillOn = e.target.checked;
+  applyStroke();
+});
+
+// ── Stroke color picker ────────────────────────────
+{
+  const scInput = document.getElementById('stroke-color');
+  const scFill  = document.getElementById('stroke-color-fill');
+  const scHex   = document.getElementById('stroke-color-hex');
+  scInput.addEventListener('input', () => {
+    S.strokeColor = scInput.value;
+    scFill.style.background = scInput.value;
+    scHex.textContent = scInput.value;
+    applyStroke();
+  });
+}
+
+document.getElementById('ratio-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.ratio-btn'); if (!btn) return;
+  document.querySelectorAll('#ratio-grid button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); S.ratio = btn.dataset.ratio; applyCanvasSize();
+});
+
+// ── Transparent BG ─────────────────────────────────
+document.getElementById('transparent-toggle').addEventListener('change', e => {
+  S.transparentBg = e.target.checked;
+  applyAll();
+});
+
+// ── Motion bindings ────────────────────────────────
+function toggleMotion(on) {
+  S.motionOn = on;
+  if (on) clearSelection();
+  document.getElementById('motion-toggle').checked = on;
+  motionInner.classList.toggle('off', !on);
+  document.getElementById('info-motion').textContent = on ? S.motionType : '—';
+  setPlayBtn(on);
+  on ? startMotion() : stopMotion();
+}
+
+document.getElementById('motion-toggle').addEventListener('change', e => toggleMotion(e.target.checked));
+document.getElementById('play-btn').addEventListener('click', () => {
+  // Open motion accordion if closed
+  const accBody = document.getElementById('acc-motion');
+  const accHead = document.querySelector('[data-acc="motion"]');
+  if (!accBody.classList.contains('open')) {
+    accBody.classList.add('open'); accHead.classList.add('open');
+  }
+  toggleMotion(!S.motionOn);
+});
+
+function syncMotionTypeUI(type) {
+  const isBubble  = type === 'bubble';
+  const isBump    = type === 'bump';
+  const hasFrames = type === 'breathe' || type === 'wave';
+  document.getElementById('frame-controls').style.display = hasFrames ? 'block' : 'none';
+  document.getElementById('float-row').style.display      = isBubble  ? 'flex'  : 'none';
+  document.getElementById('bump-opts').style.display        = isBump ? 'block' : 'none';
+  document.getElementById('bump-opts-bottom').style.display = isBump ? 'block' : 'none';
+}
+
+
+function setPlayBtn(on) {
+  const btn = document.getElementById('play-btn');
+  btn.textContent = on ? '⏹  Stop' : '▶  Play';
+  btn.style.background  = on ? 'var(--accent)' : '';
+  btn.style.color       = on ? '#fff'          : '';
+  btn.style.borderColor = on ? 'var(--accent)' : '';
+}
+
+document.getElementById('motion-type-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.pill'); if (!btn || !btn.dataset.mtype) return;
+  document.querySelectorAll('#motion-type-grid .pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on'); S.motionType = btn.dataset.mtype;
+  syncMotionTypeUI(S.motionType);
+  document.getElementById('info-motion').textContent = S.motionOn ? S.motionType : '—';
+  if (S.motionOn) { stopMotion(); startMotion(); }
+});
+
+bindRange('motion-speed',     'motionSpeed');
+bindRange('motion-intensity', 'motionIntensity');
+bindRange('fs-thresh',  'fsThresh');
+bindRange('fs-cutoff',  'fsCutoff');
+bindRange('fe-thresh',  'feThresh');
+bindRange('fe-cutoff',  'feCutoff');
+
+document.getElementById('bubble-float').addEventListener('input', e => {
+  S.bubbleFloat = parseFloat(e.target.value);
+  const vi = document.getElementById('bubble-float-val');
+  if (vi) vi.value = fmtVal(e.target.value);
+});
+const bfVi = document.getElementById('bubble-float-val');
+if (bfVi) {
+  const bfEl = document.getElementById('bubble-float');
+  const bfCommit = () => {
+    let v = parseFloat(bfVi.value);
+    if (isNaN(v)) { bfVi.value = fmtVal(bfEl.value); return; }
+    v = Math.min(1, Math.max(0, v));
+    bfEl.value = v; bfVi.value = fmtVal(v); S.bubbleFloat = v;
+  };
+  bfVi.addEventListener('change', bfCommit);
+  bfVi.addEventListener('keydown', e => { if (e.key==='Enter') { bfCommit(); bfVi.blur(); } });
+}
+
+// ── Bump controls ──────────────────────────────────
+bindRange('bump-bridge', 'bumpBridge');
+
+document.getElementById('bump-dir-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.pill[data-bdir]');
+  if (!btn) return;
+  document.querySelectorAll('#bump-dir-grid .pill').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  S.bumpDir = btn.dataset.bdir;
+});
+
+// ── Export PNG ─────────────────────────────────────
+document.getElementById('export-png-btn').addEventListener('click', () => {
+  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=window.devicePixelRatio||2;
+  const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
+  const bgRect = S.transparentBg ? '' : `<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
+  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas'); c.width=w*dpr; c.height=h*dpr;
+    const ctx=c.getContext('2d');
+    if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,w*dpr,h*dpr);}
+    ctx.scale(dpr,dpr); ctx.drawImage(img,0,0);
+    URL.revokeObjectURL(url);
+    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.png`,href:c.toDataURL()}).click();
+  };
+  img.src=url;
+});
+
+// ── Export GIF ─────────────────────────────────────
+document.getElementById('export-gif-btn').addEventListener('click', () => {
+  if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
+  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=Math.min(window.devicePixelRatio||2,2);
+  const vc=document.createElement('canvas'); vc.width=w*dpr; vc.height=h*dpr;
+  const ctx=vc.getContext('2d');
+  const mimeType='video/webm';
+  const chunks=[];
+  const stream=vc.captureStream(15);
+  const recorder=new MediaRecorder(stream,{mimeType});
+  recorder.ondataavailable=e=>chunks.push(e.data);
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:mimeType});
+    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.webm`,href:URL.createObjectURL(blob)}).click();
+    gifRecording=false;
+  };
+  let gifRecording=true;
+  const btn=document.getElementById('export-gif-btn');
+  btn.textContent='Recording… 3s'; btn.style.opacity='.5';
+  function gifFrame(){
+    if(!gifRecording) return;
+    const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
+    const bgRect=S.transparentBg?'':`<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
+    const svgStr=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
+    const url=URL.createObjectURL(new Blob([svgStr],{type:'image/svg+xml'}));
+    const img=new Image();
+    img.onload=()=>{
+      ctx.clearRect(0,0,vc.width,vc.height);
+      if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,vc.width,vc.height);}
+      ctx.save(); ctx.scale(dpr,dpr); ctx.drawImage(img,0,0); ctx.restore();
+      URL.revokeObjectURL(url);
+      requestAnimationFrame(gifFrame);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url); requestAnimationFrame(gifFrame);};
+    img.src=url;
+  }
+  recorder.start();
+  gifFrame();
+  setTimeout(()=>{
+    recorder.stop();
+    btn.textContent='Export GIF (motion)'; btn.style.opacity='';
+  }, 3000);
+});
+
+// ── Export MP4 (WebM) ──────────────────────────────
+document.getElementById('export-mp4-btn').addEventListener('click', () => {
+  if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
+  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=Math.min(window.devicePixelRatio||2,2);
+  const vc=document.createElement('canvas'); vc.width=w*dpr; vc.height=h*dpr;
+  const ctx=vc.getContext('2d');
+  const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4'
+    : MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
+  const chunks=[];
+  const stream=vc.captureStream(30);
+  const recorder=new MediaRecorder(stream,{mimeType:mimeType.split(';')[0]});
+  recorder.ondataavailable=e=>chunks.push(e.data);
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{type:mimeType.split(';')[0]});
+    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.${ext}`,href:URL.createObjectURL(blob)}).click();
+    recording=false;
+  };
+
+  let recording=true;
+  const btn=document.getElementById('export-mp4-btn');
+  btn.textContent='Recording… 5s'; btn.style.opacity='.5';
+
+  function renderFrame(){
+    if(!recording) return;
+    const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
+    const bgRect=S.transparentBg?'':`<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
+    const svgStr=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
+    const url=URL.createObjectURL(new Blob([svgStr],{type:'image/svg+xml'}));
+    const img=new Image();
+    img.onload=()=>{
+      ctx.clearRect(0,0,vc.width,vc.height);
+      if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,vc.width,vc.height);}
+      ctx.save(); ctx.scale(dpr,dpr); ctx.drawImage(img,0,0); ctx.restore();
+      URL.revokeObjectURL(url);
+      requestAnimationFrame(renderFrame);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url); requestAnimationFrame(renderFrame);};
+    img.src=url;
+  }
+
+  recorder.start();
+  renderFrame();
+  setTimeout(()=>{
+    recorder.stop();
+    btn.textContent='Export MP4 (motion)'; btn.style.opacity='';
+  }, 5000);
+});
+
+// ── Reset handlers ─────────────────────────────────
+
+document.getElementById('reset-typo').addEventListener('click', () => {
+  const startKerning    = S.kerning;
+  const startScale      = S.scale;
+  const startLineHeight = S.lineHeight;
+  const startOffsets    = charOffsets.map(o => ({...o}));
+  const startScales     = charScales.map(s => ({...s}));
+  const t0 = performance.now();
+
+  // weight snaps immediately (discrete value)
+  S.fontWeight = 700;
+  document.getElementById('weight-select').value = '700';
+
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / RESET_DUR);
+    const e = easeOutCubic(p);
+
+    const targetKerning = (FONT_DEFAULTS[S.fontFamily] || FONT_DEFAULTS['Delight']).kerning;
+    S.kerning    = startKerning    + (targetKerning - startKerning)    * e;
+    S.scale      = startScale      + (1.0   - startScale)      * e;
+    S.lineHeight = startLineHeight + (1.05  - startLineHeight)  * e;
+
+    setSlider('kerning',     S.kerning);
+    setSlider('scale',       S.scale);
+    setSlider('line-height', S.lineHeight);
+
+    charOffsets.forEach((o, i) => {
+      o.x = startOffsets[i].x * (1 - e);
+      o.y = startOffsets[i].y * (1 - e);
+    });
+    charScales.forEach((s, i) => {
+      s.x = startScales[i].x + (1 - startScales[i].x) * e;
+      s.y = startScales[i].y + (1 - startScales[i].y) * e;
+    });
+    charEls.forEach((_, i) => applyCharTransform(i));
+    applyAll();
+
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+});
+
+document.getElementById('reset-sticky').addEventListener('click', () => {
+  applyFontStickyDefaults(S.fontFamily);
+});
+
+// ── Preview HUD ────────────────────────────────────
+document.getElementById('bbox-toggle-btn').addEventListener('click', () => {
+  bboxVisible = !bboxVisible;
+  const btn = document.getElementById('bbox-toggle-btn');
+  btn.classList.toggle('on', bboxVisible);
+  updateBboxDisplay();
+});
+
+document.getElementById('reset-color').addEventListener('click', () => {
+  S.textColor='#242424'; S.bgColor='#f0f0f0';
+  document.getElementById('text-color').value='#242424';
+  document.getElementById('text-color-fill').style.background='#242424';
+  document.getElementById('text-color-hex').textContent='#242424';
+  document.getElementById('bg-color').value='#f0f0f0';
+  document.getElementById('bg-color-fill').style.background='#f0f0f0';
+  document.getElementById('bg-color-hex').textContent='#f0f0f0';
+  applyAll();
+});
+
+document.getElementById('reset-stroke').addEventListener('click', () => {
+  S.strokeType  = 'off';
+  S.fillOn      = true;
+  S.strokeColor = '#242424';
+  // Sync stroke-type pills
+  document.querySelectorAll('.stroke-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('[data-stype="off"]')?.classList.add('on');
+  // Sync fill toggle
+  document.getElementById('fill-toggle').checked = true;
+  // Sync stroke color picker
+  document.getElementById('stroke-color').value          = '#242424';
+  document.getElementById('stroke-color-fill').style.background = '#242424';
+  document.getElementById('stroke-color-hex').textContent = '#242424';
+  syncStrokeUI();
+  updateFilter();
+});
+
+document.getElementById('reset-distress').addEventListener('click', () => {
+  S.distressIntensity = 0;
+  S.distressSeed      = 9;
+  setSlider('distress-intensity', 0);
+  setSlider('distress-seed',      9);
+  applyDistress();
+  updateFilter();
+});
+
+document.getElementById('reset-motion').addEventListener('click', () => {
+  S.motionType='breathe'; S.motionSpeed=0.55; S.motionIntensity=0.3;
+  S.fsThresh=22; S.fsCutoff=-14; S.feThresh=36; S.feCutoff=-6;
+  S.bubbleFloat=0.5; S.bumpBridge=0.4; S.bumpDir='random';
+  setSlider('motion-speed',0.55); setSlider('motion-intensity',0.3);
+  setSlider('fs-thresh',22); setSlider('fs-cutoff',-14);
+  setSlider('fe-thresh',36); setSlider('fe-cutoff',-6);
+  setSlider('bubble-float',0.5); setSlider('bump-bridge',0.4);
+  document.querySelectorAll('#bump-dir-grid .pill').forEach(b => b.classList.remove('on'));
+  document.querySelector('[data-bdir="random"]')?.classList.add('on');
+  S.bumpDir = 'random';
+  document.querySelectorAll('#motion-type-grid .pill').forEach(p => p.classList.remove('on'));
+  document.querySelector('[data-mtype="breathe"]')?.classList.add('on');
+  syncMotionTypeUI('breathe');
+  if (S.motionOn) { stopMotion(); startMotion(); }
+});
+
+// ── Hover preview ─────────────────────────────────
+const hoverPreview = document.getElementById('hover-preview');
+const hpText       = document.getElementById('hp-text');
+const hpBg         = document.getElementById('hp-bg');
+const hpLabel      = document.getElementById('hp-label');
+let hpTimeout = null, hpFrame = null, hpStart = null, hpCharEls = [];
+
+function hpRenderChars() {
+  hpText.innerHTML = ''; hpCharEls = [];
+  const src = (S.text.split('\n')[0] || 'STICKY').slice(0, 9);
+  [...src].forEach(ch => {
+    const el = document.createElement('span');
+    el.style.display = 'inline-block';
+    el.textContent = ch === ' ' ? '\u00a0' : ch;
+    hpText.appendChild(el); hpCharEls.push(el);
+  });
+}
+
+function hpStartAnim(type) {
+  if (hpFrame) cancelAnimationFrame(hpFrame);
+  hpStart = null;
+  const n = hpCharEls.length || 1;
+  const hpLerp = (a,b,t) => a+(b-a)*t;
+  const hpHash = s => { const v=Math.sin(s)*43758.5453123; return v-Math.floor(v); };
+  const spd = S.motionSpeed, I = 0.5;
+
+  function tick(ts) {
+    if (!hpStart) hpStart = ts;
+    const rawT = (ts - hpStart) / 1000;
+    const phi  = rawT * spd * Math.PI * 2;
+
+    if (type === 'breathe') {
+      const sc = 1 + Math.sin(phi * 0.7) * I * 0.13;
+      hpText.style.transform = `scale(${sc})`;
+      hpCharEls.forEach(el => { el.style.filter = ''; el.style.transform = ''; });
+
+    } else if (type === 'bump') {
+      hpText.style.transform = '';
+      // Preview: Gaussian L→R traveling peak (matches actual ltr motion)
+      const hpN = hpCharEls.length || 1;
+      const hpFrac = ((phi * 0.5) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) / (Math.PI * 2);
+      const hpPeak = hpFrac * (hpN + 5) - 2.5;
+      hpCharEls.forEach((el, i) => {
+        const dist = i - hpPeak;
+        const wave = Math.exp(-(dist * dist) / 2);
+        el.style.filter = '';
+        el.style.transform = `scaleX(${(1 + wave * I * 0.65).toFixed(3)}) scaleY(${(1 - wave * I * 0.22).toFixed(3)})`;
+      });
+
+    } else if (type === 'wave') {
+      const p = Math.sin(phi * 0.5);
+      hpText.style.transform = `scaleX(${1 + p*I*0.32})`;
+      hpText.style.letterSpacing = (S.kerning + p*I*0.09) + 'em';
+      hpCharEls.forEach(el => el.style.transform = '');
+
+    } else if (type === 'bubble') {
+      hpText.style.transform = '';
+      hpCharEls.forEach((el, i) => {
+        const r1=0.6+(i*0.37%1)*1.1, r2=0.4+(i*0.61%1)*1.3;
+        const sx = 1 + Math.sin(phi*r1+i*1.1)*I*0.55;
+        const sk = Math.sin(phi*r2+i*2.3)*I*22;
+        const fy = Math.sin(phi*0.15+i*0.9)*I*18;
+        el.style.transform = `translateY(${fy}px) scaleX(${sx}) skewX(${sk}deg)`;
+      });
+
+    } else if (type === 'flex') {
+      hpText.style.transform = '';
+      const beatDur  = 0.55/spd, beatIdx = Math.floor(rawT/beatDur);
+      const beatProg = (rawT%beatDur)/beatDur;
+      const easeT = beatProg < 0.25 ? 1-Math.pow(1-beatProg/0.25,3) : 1;
+      const spread = I * 0.8;
+      hpCharEls.forEach((el, i) => {
+        const tSx = Math.max(0.2,1+(hpHash(beatIdx*127.1+i*311.7)-0.5)*2*spread);
+        const tSk = (hpHash(beatIdx*269.5+i*183.3)-0.5)*2*I*24;
+        const pSx = Math.max(0.2,1+(hpHash((beatIdx-1)*127.1+i*311.7)-0.5)*2*spread);
+        const pSk = (hpHash((beatIdx-1)*269.5+i*183.3)-0.5)*2*I*24;
+        el.style.transform = `scaleX(${pSx+(tSx-pSx)*easeT}) skewX(${pSk+(tSk-pSk)*easeT}deg)`;
+      });
+
+    } else if (type === 'melt') {
+      hpText.style.transform = '';
+      hpCharEls.forEach((el, i) => {
+        const rate   = 0.22 + (i * 0.31 % 1) * 0.28;
+        const phase  = i * 1.57 + i * i * 0.09;
+        const drip01 = (Math.sin(phi * rate + phase) + 1) / 2;
+        const dropY  = drip01 * I * 32;
+        const sx     = 1 + drip01 * I * 0.40;
+        const sy     = 1 - drip01 * I * 0.14;
+        el.style.filter = '';
+        el.style.transform = `translateY(${dropY}px) scaleX(${sx.toFixed(3)}) scaleY(${sy.toFixed(3)})`;
+      });
+
+    } else if (type === 'bounce') {
+      hpText.style.transform = '';
+      const hpN2 = hpCharEls.length || 1;
+      hpCharEls.forEach((el, i) => {
+        const offset = (i / Math.max(hpN2 - 1, 1)) * 0.50 * Math.PI * 2;
+        const hop = Math.max(0, Math.sin(phi * 0.45 - offset));
+        el.style.filter = '';
+        el.style.transform = `translateY(${-hop * I * 22}px)`;
+      });
+
+    } else if (type === 'pull') {
+      const cycle = (phi * 0.42) % (Math.PI * 2);
+      const tC = cycle / (Math.PI * 2);
+      const P1=0.24, P2=0.58, P3=0.76;
+      let pullT;
+      if (tC < P1) {
+        pullT = -easeOutCubic(tC / P1);
+      } else if (tC < P2) {
+        pullT = -1 + 2 * easeInOutCubic((tC - P1) / (P2 - P1));
+      } else if (tC < P3) {
+        const vp = (tC - P2) / (P3 - P2);
+        pullT = 1 - Math.sin(vp * Math.PI * 3) * 0.055 * (1 - vp);
+      } else {
+        pullT = easeOutCubic(1 - (tC - P3) / (1 - P3));
+      }
+      if (pullT <= 0) {
+        hpCharEls.forEach(el => { el.style.transform = ''; });
+        const pSx = 1 + pullT * I * 0.68;
+        const pSy = 1 - pullT * I * 0.12;
+        hpText.style.transform = `scaleX(${pSx.toFixed(3)}) scaleY(${pSy.toFixed(3)})`;
+      } else {
+        hpText.style.transform = '';
+        const cSx = 1 + pullT * I * 0.65;
+        hpCharEls.forEach(el => { el.style.transform = `scaleX(${cSx.toFixed(3)})`; });
+      }
+    }
+    hpFrame = requestAnimationFrame(tick);
+  }
+  hpFrame = requestAnimationFrame(tick);
+}
+
+function hpShow(type, cx, cy) {
+  hpBg.style.background = S.transparentBg ? 'repeating-conic-gradient(#c8c8c8 0% 25%,#fff 0% 50%) 0 0 / 12px 12px' : S.bgColor;
+  hpText.style.color = S.textColor;
+  hpText.style.fontWeight = S.fontWeight;
+  hpText.style.transform = '';
+  hpLabel.textContent = type.toUpperCase();
+  hpRenderChars();
+  // Position: cursor upper-right, keep inside viewport
+  const pw=168, ph=130;
+  let lx = cx + 14, ly = cy - ph - 10;
+  if (lx + pw > window.innerWidth  - 8) lx = cx - pw - 14;
+  if (ly < 8) ly = cy + 14;
+  hoverPreview.style.left = lx + 'px';
+  hoverPreview.style.top  = ly + 'px';
+  hoverPreview.style.display = 'block';
+  hpStartAnim(type);
+}
+
+function hpHide() {
+  clearTimeout(hpTimeout); hpTimeout = null;
+  if (hpFrame) { cancelAnimationFrame(hpFrame); hpFrame = null; }
+  hoverPreview.style.display = 'none';
+  hpText.style.transform = '';
+  hpCharEls.forEach(el => el.style.transform = '');
+}
+
+let hpCurrentBtn = null;
+document.getElementById('motion-type-grid').addEventListener('mousemove', e => {
+  const btn = e.target.closest('.pill[data-mtype]');
+  if (!btn) return;
+  if (btn === hpCurrentBtn) return;
+  hpCurrentBtn = btn;
+  hpHide();
+  hpTimeout = setTimeout(() => hpShow(btn.dataset.mtype, e.clientX, e.clientY), 500);
+});
+document.getElementById('motion-type-grid').addEventListener('mouseleave', () => {
+  hpCurrentBtn = null; hpHide();
+});
+
+// ── Frame section toggles ─────────────────────────
+['start','end'].forEach(k => {
+  const head = document.getElementById(`frame-${k}-head`);
+  const body = document.getElementById(`frame-${k}-body`);
+  const arrow = head.querySelector('.frame-arrow');
+  head.addEventListener('click', () => {
+    const open = body.style.display !== 'none';
+    body.style.display = open ? 'none' : 'block';
+    arrow.style.transform = open ? '' : 'rotate(90deg)';
+    arrow.style.color = open ? '' : 'var(--accent)';
+    head.style.color  = open ? '' : 'var(--accent)';
+  });
+});
+
+// ── Init ───────────────────────────────────────────
+new ResizeObserver(() => { applyCanvasSize(); }).observe(previewArea);
+renderChars();
+applyCanvasSize();
+applyAll();
+syncMotionTypeUI(S.motionType);
+updateLineHeightVisibility();
+setPlayBtn(false);
+// Sync all val-inputs to their range counterparts on load
+document.querySelectorAll('input[type=range]').forEach(el => {
+  const vi = document.getElementById(el.id + '-val');
+  if (vi) vi.value = fmtVal(el.value);
+});
+</script>
+</body>
+</html>
