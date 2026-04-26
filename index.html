@@ -540,7 +540,6 @@
             <button class="pill"    data-mtype="flex">Flex</button>
             <button class="pill"    data-mtype="melt">Melt</button>
             <button class="pill"    data-mtype="stretch">Stretch</button>
-            <button class="pill"    data-mtype="bounce">Bounce</button>
           </div>
 
           <div class="control-row" style="margin-bottom:10px">
@@ -1372,7 +1371,7 @@ function applyAll() {
   canvasWrap.classList.toggle('canvas-transparent', S.transparentBg);
   compositeTransform();
   if (!S.motionOn) updateFilter();
-  else if (['bubble','flex','melt','stretch','bounce'].includes(S.motionType)) updateFilter();
+  else if (['bubble','flex','melt','stretch'].includes(S.motionType)) updateFilter();
   document.getElementById('info-weight').textContent = WEIGHT_NAMES[S.fontWeight] || S.fontWeight;
   document.getElementById('info-sticky').textContent = `${S.stickyMerge} / ${S.stickyThresh}`;
   recalcFit();
@@ -1589,34 +1588,6 @@ function renderMotionFrame(rawT, easeInP = 1) {
 
       // Filter stays active throughout; extra blur proportional to intensity.
       updateFilter(S.stickyMerge * (1 + I * 0.55), S.stickyThresh, S.stickyCutoff);
-      compositeTransform();
-
-    } else if (S.motionType === 'bounce') {
-      mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
-      const n = charEls.length || 1;
-      stickyText.style.letterSpacing = S.kerning + 'em';
-
-      // Stadium wave: each char hops up in sequence L→R.
-      // max(0, sin) gives a clean discrete hop — each char is airborne for exactly
-      // half the cycle, at rest for the other half, with clear sequential stagger.
-      const stagger = 0.50; // phase span across word (fraction of 2π)
-      charEls.forEach((el, i) => {
-        const offset = (i / Math.max(n - 1, 1)) * stagger * Math.PI * 2;
-        const sinV   = Math.sin(phi * 0.45 - offset);
-        const hop    = Math.max(0, sinV);   // 0 = grounded, 1 = peak
-
-        const ty     = -hop * I * 44;
-        const scaleX = 1 - hop * I * 0.06;
-        const scaleY = 1 + hop * I * 0.04;
-
-        el.style.filter = '';
-        const {x, y} = charOffsets[i];
-        const {x:csx, y:csy} = charScales[i];
-        const so5 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
-        el.style.transform = `translate(${x+so5.x}px,${y+ty+so5.y}px)${so5.r?` rotate(${so5.r.toFixed(3)}deg)`:''} scaleX(${(csx*scaleX*so5.sx).toFixed(4)}) scaleY(${(csy*scaleY*so5.sy).toFixed(4)})`;
-      });
-
-      updateFilter();
       compositeTransform();
 
     } else if (S.motionType === 'stretch') {
@@ -2319,49 +2290,39 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
 
     showProgress('Rendering MP4…', 0);
 
-    // Pre-render every frame to bitmaps so playback timing isn't bottlenecked by SVG decode.
-    const frames = [];
-    const work = document.createElement('canvas');
-    work.width = Wp; work.height = Hp;
-    for (let i = 0; i < total; i++) {
-      renderMotionFrame(i / fps, 1);
-      void stickyText.offsetWidth;
-      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
-      const bmp = await createImageBitmap(work);
-      frames.push(bmp);
-      setProgress((i + 1) / total * 0.7);
-      btn.textContent = `${i + 1}/${total}`;
-      if (i % 4 === 3) await new Promise(r => setTimeout(r, 0));
-    }
-
-    // Now play frames into the recorded canvas at exact fps.
+    // Render each frame directly into the recording canvas — no pre-storage.
+    // Pre-storing all frames as ImageBitmaps caused OOM after GIF export
+    // (~1.4 GB at 60fps × 3s × 2x DPR). Live rendering keeps memory flat.
     const out = document.createElement('canvas');
     out.width = Wp; out.height = Hp;
-    const oCtx = out.getContext('2d', { colorSpace: 'srgb' });
     const stream = out.captureStream(fps);
     const chunks = [];
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 });
     recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
     const recDone = new Promise(res => { recorder.onstop = res; });
 
-    recorder.start();
-    btn.textContent = 'Encoding…';
-    const start = performance.now();
+    recorder.start(100);
+    const recStart = performance.now();
+
     for (let i = 0; i < total; i++) {
-      const target = start + (i * 1000) / fps;
-      while (performance.now() < target) {
-        await new Promise(r => requestAnimationFrame(r));
-      }
-      oCtx.clearRect(0, 0, Wp, Hp);
-      oCtx.drawImage(frames[i], 0, 0);
-      setProgress(0.7 + (i + 1) / total * 0.3);
+      renderMotionFrame(i / fps, 1);
+      void stickyText.offsetWidth;
+      // Render directly to the streamed canvas
+      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, out);
+      setProgress((i + 1) / total);
+      btn.textContent = `${i + 1}/${total}`;
+      // Pace to target fps so recorded video plays at correct speed.
+      // If rendering is faster than real-time we wait; if slower we skip the wait
+      // and the recorder naturally timestamps at the actual draw rate.
+      const targetMs = recStart + (i + 1) * (1000 / fps);
+      const wait = targetMs - performance.now();
+      if (wait > 1) await new Promise(r => setTimeout(r, wait));
     }
-    // Hold final frame briefly so recorder flushes it
-    await new Promise(r => setTimeout(r, 1000 / fps + 50));
+
+    await new Promise(r => setTimeout(r, 150));
     recorder.stop();
     await recDone;
 
-    frames.forEach(b => b.close && b.close());
     const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
     download(URL.createObjectURL(blob), `sticky_${Date.now()}.${ext}`);
     hideProgress();
@@ -2704,16 +2665,6 @@ function hpStartAnim(type) {
         const sy     = 1 - drip01 * I * 0.14;
         el.style.filter = '';
         el.style.transform = `translateY(${dropY}px) scaleX(${sx.toFixed(3)}) scaleY(${sy.toFixed(3)})`;
-      });
-
-    } else if (type === 'bounce') {
-      hpText.style.transform = '';
-      const hpN2 = hpCharEls.length || 1;
-      hpCharEls.forEach((el, i) => {
-        const offset = (i / Math.max(hpN2 - 1, 1)) * 0.50 * Math.PI * 2;
-        const hop = Math.max(0, Math.sin(phi * 0.45 - offset));
-        el.style.filter = '';
-        el.style.transform = `translateY(${-hop * I * 22}px)`;
       });
 
     } else if (type === 'stretch') {
