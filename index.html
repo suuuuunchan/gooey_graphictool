@@ -2073,36 +2073,71 @@ function buildFrameSVG(W, H, fontCSS) {
   const wantsFilter = stickyText.style.filter && stickyText.style.filter !== 'none';
   const filterAttr = wantsFilter ? ' filter="url(#sticky-filter)"' : '';
 
-  // Approximate alphabetic baseline offset within an inline-block span:
-  // span height = lineHeight; glyph baseline ≈ leading/2 + ascent.
-  // Empirical for both Delight and LibreBaskerville: baseline ≈ top + lineHeight*0.5 + fontSize*0.28
+  // Baseline offset in char's own box (0 = element top edge).
+  // Delight/LibreBaskerville: baseline ≈ leading/2 + 0.78 × fontSize
   const baselineOffset = (lineHeightPx - fontSizePx) / 2 + fontSizePx * 0.78;
 
-  // textTransformLayer fills (0,0)-(W,H) of canvasWrap, transform-origin = center.
-  const layerCS = getComputedStyle(textTransformLayer);
-  let layerTransform = '';
-  if (layerCS.transform && layerCS.transform !== 'none') {
-    const m = new DOMMatrix(layerCS.transform);
-    const cx = W / 2, cy = H / 2;
-    layerTransform = ` transform="translate(${cx} ${cy}) matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f}) translate(${-cx} ${-cy})"`;
-  }
+  // ── Read layer CSS transform BEFORE clearing anything ──────────────
+  const layerTransformStr = getComputedStyle(textTransformLayer).transform;
+  const M_layer_raw = (layerTransformStr && layerTransformStr !== 'none')
+    ? new DOMMatrix(layerTransformStr) : new DOMMatrix([1,0,0,1,0,0]);
+  // textTransformLayer is inset:0 inside canvasWrap → its transform-origin = (W/2, H/2)
+  // Full layer matrix: T(W/2,H/2) · M_layer · T(-W/2,-H/2)
+  const M_layer = new DOMMatrix([1,0,0,1, W/2, H/2])
+    .multiply(M_layer_raw)
+    .multiply(new DOMMatrix([1,0,0,1, -W/2, -H/2]));
 
-  // Per-char text elements. offsetLeft/offsetTop walk to the nearest positioned
-  // ancestor (textTransformLayer), so the values are already in layer coords.
+  // ── Snapshot per-char transforms BEFORE clearing ──────────────────
+  const savedCharTransforms = charEls.map(el => el.style.transform || '');
+
+  // ── Temporarily clear ALL transforms to read pure layout positions ─
+  // CSS transforms don't affect layout, but getBoundingClientRect is unreliable
+  // when ancestor transforms are active (flexbox centering offsets can be masked).
+  // Clearing transforms then measuring gives the true layout position.
+  const savedLayerTransform = textTransformLayer.style.transform;
+  textTransformLayer.style.transform = 'none';
+  charEls.forEach(el => { el.style.transform = ''; });
+  void stickyText.offsetWidth; // force synchronous layout
+
+  const wrapRect = canvasWrap.getBoundingClientRect();
+  const layoutPos = charEls.map(el => {
+    const r = el.getBoundingClientRect();
+    return {
+      x: r.left - wrapRect.left,
+      y: r.top  - wrapRect.top,
+      w: el.offsetWidth,
+      h: el.offsetHeight,
+    };
+  });
+
+  // ── Restore transforms (sync, no repaint before next frame) ───────
+  textTransformLayer.style.transform = savedLayerTransform;
+  charEls.forEach((el, i) => { el.style.transform = savedCharTransforms[i]; });
+  void stickyText.offsetWidth;
+
+  // ── Build per-char SVG elements using composed DOMMatrix ──────────
+  // For char i at layout position (x,y,w,h) with its own CSS transform M_char
+  // applied around center (w/2, h/2) in the element's local box:
+  //   M_char_full = T(x+w/2, y+h/2) · M_char · T(-w/2, -h/2)
+  //   M_combined  = M_layer · M_char_full          → local (0,0) to canvas coords
+  // Place <text x="0" y="baselineOffset"> inside this group.
   const parts = [];
   for (let i = 0; i < charEls.length; i++) {
-    const el = charEls[i];
-    const x = el.offsetLeft, y = el.offsetTop;
-    const w = el.offsetWidth, h = el.offsetHeight;
-    const cs = getComputedStyle(el);
-    const ch = escapeXML(el.textContent);
-    let tr = '';
-    if (cs.transform && cs.transform !== 'none') {
-      const m = new DOMMatrix(cs.transform);
-      const ox = x + w / 2, oy = y + h / 2;
-      tr = ` transform="translate(${ox} ${oy}) matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f}) translate(${-ox} ${-oy})"`;
-    }
-    parts.push(`<g${tr}><text x="${x}" y="${y + baselineOffset}" xml:space="preserve">${ch}</text></g>`);
+    const { x, y, w, h } = layoutPos[i];
+    const charTransStr = savedCharTransforms[i];
+    const M_char_raw = (charTransStr && charTransStr !== 'none' && charTransStr !== '')
+      ? new DOMMatrix(charTransStr) : new DOMMatrix([1,0,0,1,0,0]);
+
+    const M_char_full = new DOMMatrix([1,0,0,1, x + w/2, y + h/2])
+      .multiply(M_char_raw)
+      .multiply(new DOMMatrix([1,0,0,1, -w/2, -h/2]));
+
+    const M = M_layer.multiply(M_char_full);
+    const ch = escapeXML(charEls[i].textContent);
+    parts.push(
+      `<g transform="matrix(${M.a} ${M.b} ${M.c} ${M.d} ${M.e} ${M.f})">` +
+      `<text x="0" y="${baselineOffset}">${ch}</text></g>`
+    );
   }
 
   const bg = S.transparentBg ? '' : `<rect width="${W}" height="${H}" fill="${S.bgColor}"/>`;
@@ -2113,10 +2148,8 @@ function buildFrameSVG(W, H, fontCSS) {
 ${filterDefs}
 </defs>
 ${bg}
-<g${layerTransform}>
 <g${filterAttr} font-family="'${fontFamily}'" font-weight="${fontWeight}" font-size="${fontSizePx}" fill="${color}" text-rendering="geometricPrecision">
 ${parts.join('\n')}
-</g>
 </g>
 </svg>`;
 }
