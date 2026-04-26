@@ -45,7 +45,7 @@
   /* ── Panel ── */
   #panel { width:var(--pw); min-width:var(--pw); background:var(--panel-bg); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
   #panel-header { padding:18px 18px 15px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
-  .logo { font-size:12px; font-weight:900; letter-spacing:.18em; color:var(--accent); text-transform:uppercase; }
+  #panel-logo { height:22px; width:auto; display:block; }
   .ver  { font-size:9px; color:var(--muted); }
   #panel-body { flex:1; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:#e0e0e0 transparent; }
   #panel-body::-webkit-scrollbar { width:3px; }
@@ -283,7 +283,7 @@
 
 <div id="panel">
   <div id="panel-header">
-    <div class="logo">Sticky</div>
+    <img src="logo.png" id="panel-logo" alt="Sticky">
     <div class="ver">v0.9</div>
   </div>
 
@@ -623,8 +623,8 @@
 
     <!-- EXPORT -->
     <div class="acc">
-      <div class="acc-head" data-acc="export"><span class="acc-title">Export</span><span class="acc-arrow">▸</span></div>
-      <div class="acc-body" id="acc-export">
+      <div class="acc-head open" data-acc="export"><span class="acc-title">Export</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-export">
         <div class="toggle-row" style="margin-bottom:14px">
           <span class="toggle-label">Transparent BG</span>
           <label class="toggle">
@@ -1231,7 +1231,8 @@ function applyCanvasSize() {
   }
   canvasWrap.style.width=w+'px'; canvasWrap.style.height=h+'px';
   document.getElementById('info-size').textContent=`${w}×${h}`;
-  recalcFit();
+  // Pass final dimensions directly so fit animation starts in sync with CSS transition
+  recalcFit(w, h);
 }
 
 // ── Motion transform ───────────────────────────────
@@ -1239,6 +1240,8 @@ const mot = {x:0, y:0, r:0, s:1, sx:1, sy:1};
 
 // ── Fit-scale system ───────────────────────────────
 let fitScale = 1, fitTarget = 1, _fitTimer = null, _fitAF = null;
+let _fitAnimFrom = 1, _fitAnimStart = null;
+const FIT_DUR = 320; // ms — matches canvas CSS transition (300ms) + small buffer
 
 function compositeTransform() {
   const ef = S.motionOn ? 1 : fitScale;
@@ -1246,30 +1249,53 @@ function compositeTransform() {
     `translate(${mot.x}px,${mot.y}px) rotate(${mot.r}deg) scaleX(${mot.sx}) scaleY(${mot.sy}) scale(${S.scale * mot.s * ef}) translateZ(0)`;
 }
 
-function recalcFit() {
+function recalcFit(knownW, knownH) {
   clearTimeout(_fitTimer);
-  _fitTimer = setTimeout(() => {
-    if (S.motionOn) return;
-    const cr = canvasWrap.getBoundingClientRect();
-    if (!cr.width || !cr.height) return;
-    // Use offsetWidth (layout-based) so compositor-thread transforms don't skew the read
+  const compute = (cw, ch) => {
+    if (S.motionOn || !cw || !ch) return;
     const natW = stickyText.offsetWidth;
     const natH = stickyText.offsetHeight;
     if (!natW || !natH) return;
-    const needed = Math.min(1, cr.width / (natW * S.scale), cr.height / (natH * S.scale));
+    const needed = Math.min(1, cw / (natW * S.scale), ch / (natH * S.scale));
     if (Math.abs(needed - fitTarget) > 0.001) { fitTarget = needed; _animFitScale(); }
-  }, 60);
+  };
+  if (knownW) {
+    compute(knownW, knownH);
+  } else {
+    _fitTimer = setTimeout(() => {
+      const cr = canvasWrap.getBoundingClientRect();
+      compute(cr.width, cr.height);
+    }, 60);
+  }
 }
 
 function _animFitScale() {
-  if (_fitAF) cancelAnimationFrame(_fitAF);
-  (function step() {
-    const d = fitTarget - fitScale;
-    if (Math.abs(d) < 0.0005) { fitScale = fitTarget; compositeTransform(); _fitAF = null; applyShape(); return; }
-    fitScale += d * 0.15;
+  if (_fitAF) { cancelAnimationFrame(_fitAF); _fitAF = null; }
+  _fitAnimFrom = fitScale;
+  _fitAnimStart = null;
+  (function step(ts) {
+    if (_fitAnimStart === null) _fitAnimStart = ts;
+    const p = Math.min(1, (ts - _fitAnimStart) / FIT_DUR);
+    fitScale = _fitAnimFrom + (fitTarget - _fitAnimFrom) * easeOutCubic(p);
     compositeTransform();
-    _fitAF = requestAnimationFrame(step);
-  })();
+    if (p < 1) {
+      _fitAF = requestAnimationFrame(step);
+    } else {
+      fitScale = fitTarget;
+      compositeTransform();
+      _fitAF = null;
+      applyShape();
+    }
+  })(performance.now());
+}
+
+// Trigger fit recalc when window is resized (covers full-mode canvas resize)
+{
+  let _roTimer = null;
+  new ResizeObserver(() => {
+    clearTimeout(_roTimer);
+    _roTimer = setTimeout(() => recalcFit(), 16);
+  }).observe(canvasWrap);
 }
 
 // ── Filter ─────────────────────────────────────────
