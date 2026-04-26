@@ -24,18 +24,6 @@
   @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-Bold.ttf')           format('truetype'); font-weight:700; font-style:normal; }
   @font-face { font-family:'LibreBaskerville'; src:url('fonts/LibreBaskerville-BoldItalic.ttf')     format('truetype'); font-weight:700; font-style:italic; }
 
-  @font-face { font-family:'BookkMyungjo'; src:url('fonts/BookkMyungjo_Light.ttf') format('truetype'); font-weight:300; }
-  @font-face { font-family:'BookkMyungjo'; src:url('fonts/BookkMyungjo_Bold.ttf')  format('truetype'); font-weight:700; }
-
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-1Thin.woff2')       format('woff2'),url('fonts/에이투지체-1Thin.otf')       format('opentype'); font-weight:100; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-2ExtraLight.woff2') format('woff2'),url('fonts/에이투지체-2ExtraLight.otf') format('opentype'); font-weight:200; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-3Light.woff2')      format('woff2'),url('fonts/에이투지체-3Light.otf')      format('opentype'); font-weight:300; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-4Regular.woff2')    format('woff2'),url('fonts/에이투지체-4Regular.otf')    format('opentype'); font-weight:400; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-5Medium.woff2')     format('woff2'),url('fonts/에이투지체-5Medium.otf')     format('opentype'); font-weight:500; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-6SemiBold.woff2')   format('woff2'),url('fonts/에이투지체-6SemiBold.otf')   format('opentype'); font-weight:600; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-7Bold.woff2')       format('woff2'),url('fonts/에이투지체-7Bold.otf')       format('opentype'); font-weight:700; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-8ExtraBold.woff2')  format('woff2'),url('fonts/에이투지체-8ExtraBold.otf')  format('opentype'); font-weight:800; }
-  @font-face { font-family:'A2G'; src:url('fonts/에이투지체-9Black.woff2')      format('woff2'),url('fonts/에이투지체-9Black.otf')      format('opentype'); font-weight:900; }
 
   *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
@@ -104,7 +92,8 @@
   .swatch { position:relative; width:28px; height:20px; border-radius:5px; overflow:hidden; border:1px solid var(--border); cursor:pointer; flex-shrink:0; }
   .swatch input[type=color] { position:absolute; inset:-4px; width:calc(100% + 8px); height:calc(100% + 8px); border:none; cursor:pointer; opacity:0; }
   .swatch-fill { position:absolute; inset:0; pointer-events:none; border-radius:4px; }
-  .hex-label { font-size:10px; font-family:'SF Mono',monospace; color:var(--muted); }
+  .hex-input { font-size:10px; font-family:'SF Mono',monospace; color:var(--muted); background:none; border:none; outline:none; width:58px; text-align:right; cursor:text; padding:0; }
+  .hex-input:focus { color:var(--fg); }
 
   /* ── Toggle ── */
   .toggle-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0 10px; margin-bottom:12px; border-bottom:1px solid var(--border); }
@@ -131,7 +120,7 @@
   .sub-label { font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .font-category { font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
   /* ── Stroke pills (3-column) ── */
-  .stroke-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:12px; }
+  .stroke-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; margin-bottom:12px; }
   .stroke-btn { background:var(--ibg); border:1px solid var(--border); color:var(--muted); font-size:9px; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; border-radius:5px; padding:8px 4px; text-align:center; transition:all .12s; font-family:'Delight',system-ui; font-weight:300; }
   .stroke-btn:hover { border-color:var(--bhi); color:var(--text); }
   .stroke-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
@@ -172,7 +161,7 @@
   #canvas-wrap.full-mode { box-shadow:none; }
   #canvas-content { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
   #text-transform-layer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:transform; }
-  #sticky-text { font-family:'Delight',system-ui,sans-serif; text-align:center; word-break:break-word; padding:60px; pointer-events:none; user-select:none; will-change:filter; }
+  #sticky-text { font-family:'Delight',system-ui,sans-serif; text-align:center; word-break:break-word; padding:60px; pointer-events:none; user-select:none; will-change:filter; text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased; }
   #sticky-text .text-line { display:block; white-space:pre; }
   #sticky-text .text-line > span { display:inline-block; cursor:grab; pointer-events:all; }
   /* ── Rubber-band selection rect ── */
@@ -201,7 +190,22 @@
   .val-input { width:40px; flex-shrink:0; background:var(--ibg); border:1px solid var(--border); color:var(--text); font-family:'SF Mono',monospace; font-size:9px; text-align:right; padding:3px 5px; border-radius:4px; outline:none; -moz-appearance:textfield; appearance:textfield; transition:border-color .15s; }
   .val-input::-webkit-inner-spin-button,.val-input::-webkit-outer-spin-button { -webkit-appearance:none; }
   .val-input:focus { border-color:var(--accent); background:var(--panel-bg); }
+
+  /* ── Arch toggle button ── */
+  .arch-toggle-btn { background:var(--ibg); border:1px solid var(--border); color:var(--muted); font-size:9px; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; border-radius:5px; padding:7px 18px; transition:all .2s; font-family:'Delight',system-ui; font-weight:300; }
+  .arch-toggle-btn.on { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+  /* Smooth expand/collapse for arch-bend-row using max-height trick */
+  #arch-bend-row { display:flex !important; align-items:center; gap:8px; overflow:hidden; max-height:0; opacity:0; margin-bottom:0; transition:max-height .3s ease, opacity .25s ease, margin-bottom .3s ease; }
+  #arch-bend-row.open { max-height:50px; opacity:1; margin-bottom:9px; }
+
+  /* ── Export progress overlay ── */
+  #export-progress { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:9000; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+  #export-progress.show { display:flex; }
+  #export-prog-msg { font-size:11px; letter-spacing:.2em; color:#fff; text-transform:uppercase; }
+  #export-prog-bar { width:240px; height:2px; background:#333; border-radius:1px; overflow:hidden; }
+  #export-prog-fill { height:100%; background:#fff; border-radius:1px; width:0%; transition:width 0.1s; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
 
@@ -288,6 +292,33 @@
       <textarea id="text-input" rows="3" spellcheck="false">gooey</textarea>
     </div>
 
+    <!-- CANVAS -->
+    <div class="acc">
+      <div class="acc-head open" data-acc="canvas"><span class="acc-title">Canvas</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-canvas">
+        <div class="ratio-grid" id="ratio-grid">
+          <button class="ratio-btn on" data-ratio="free">
+            <div class="ratio-icon"><svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>Full
+          </button>
+          <button class="ratio-btn" data-ratio="1:1">
+            <div class="ratio-icon"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>1:1
+          </button>
+          <button class="ratio-btn" data-ratio="3:4">
+            <div class="ratio-icon"><svg width="9" height="12" viewBox="0 0 9 12"><rect x="1" y="1" width="7" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>3:4
+          </button>
+          <button class="ratio-btn" data-ratio="4:3">
+            <div class="ratio-icon"><svg width="12" height="9" viewBox="0 0 12 9"><rect x="1" y="1" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>4:3
+          </button>
+          <button class="ratio-btn" data-ratio="16:9">
+            <div class="ratio-icon"><svg width="14" height="8" viewBox="0 0 14 8"><rect x="1" y="1" width="12" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>16:9
+          </button>
+          <button class="ratio-btn" data-ratio="9:16">
+            <div class="ratio-icon"><svg width="8" height="14" viewBox="0 0 8 14"><rect x="1" y="1" width="6" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>9:16
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- TYPOGRAPHY -->
     <div class="acc">
       <div class="acc-head open" data-acc="typo"><span class="acc-title">Typography</span><span class="acc-arrow">▸</span></div>
@@ -296,12 +327,10 @@
           <div class="font-category">Sans-serif</div>
           <div class="font-group">
             <button class="font-btn on" data-font="Delight">Delight</button>
-            <button class="font-btn" data-font="A2G" style="font-family:'A2G',sans-serif">에이투지체</button>
           </div>
           <div class="font-category" style="margin-top:6px">Serif</div>
           <div class="font-group">
             <button class="font-btn" data-font="LibreBaskerville" style="font-family:'LibreBaskerville',serif">Libre Baskerville</button>
-            <button class="font-btn" data-font="BookkMyungjo" style="font-family:'BookkMyungjo',serif">북크명조</button>
           </div>
         </div>
         <div style="margin-bottom:12px">
@@ -328,6 +357,14 @@
           <input type="range" id="scale" min="0.15" max="2.8" value="1" step="0.01">
           <input type="number" class="val-input" id="scale-val" min="0.15" max="2.8" step="0.01" value="1">
         </div>
+        <div class="control-row" style="margin-bottom:12px">
+          <span class="lbl">Align</span>
+          <div class="stroke-grid" style="flex:1;margin-bottom:0" id="align-grid">
+            <button class="stroke-btn" data-align="left">Left</button>
+            <button class="stroke-btn on" data-align="center">Center</button>
+            <button class="stroke-btn" data-align="right">Right</button>
+          </div>
+        </div>
         <!-- Line height: shown only when text has 2+ lines -->
         <div class="control-row" id="line-height-row" style="display:none">
           <span class="lbl">Leading</span>
@@ -338,44 +375,9 @@
       </div>
     </div>
 
-    <!-- CANVAS -->
+    <!-- GOOEY -->
     <div class="acc">
-      <div class="acc-head" data-acc="canvas"><span class="acc-title">Canvas</span><span class="acc-arrow">▸</span></div>
-      <div class="acc-body" id="acc-canvas">
-        <div class="toggle-row" style="margin-bottom:10px">
-          <span class="toggle-label">Transparent BG</span>
-          <label class="toggle">
-            <input type="checkbox" id="transparent-toggle">
-            <div class="toggle-track"></div>
-            <div class="toggle-thumb"></div>
-          </label>
-        </div>
-        <div class="ratio-grid" id="ratio-grid">
-          <button class="ratio-btn on" data-ratio="free">
-            <div class="ratio-icon"><svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>Full
-          </button>
-          <button class="ratio-btn" data-ratio="1:1">
-            <div class="ratio-icon"><svg width="11" height="11" viewBox="0 0 11 11"><rect x="1" y="1" width="9" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>1:1
-          </button>
-          <button class="ratio-btn" data-ratio="3:4">
-            <div class="ratio-icon"><svg width="9" height="12" viewBox="0 0 9 12"><rect x="1" y="1" width="7" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>3:4
-          </button>
-          <button class="ratio-btn" data-ratio="4:3">
-            <div class="ratio-icon"><svg width="12" height="9" viewBox="0 0 12 9"><rect x="1" y="1" width="10" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>4:3
-          </button>
-          <button class="ratio-btn" data-ratio="16:9">
-            <div class="ratio-icon"><svg width="14" height="8" viewBox="0 0 14 8"><rect x="1" y="1" width="12" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>16:9
-          </button>
-          <button class="ratio-btn" data-ratio="9:16">
-            <div class="ratio-icon"><svg width="8" height="14" viewBox="0 0 8 14"><rect x="1" y="1" width="6" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg></div>9:16
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- STICKY -->
-    <div class="acc">
-      <div class="acc-head open" data-acc="sticky"><span class="acc-title">Sticky</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-head open" data-acc="sticky"><span class="acc-title">Gooey</span><span class="acc-arrow">▸</span></div>
       <div class="acc-body open" id="acc-sticky">
         <div class="control-row">
           <span class="lbl">Merge</span>
@@ -393,6 +395,24 @@
           <input type="number" class="val-input" id="sticky-cutoff-val" min="-30" max="0" step="0.5" value="-20.5">
         </div>
         <button class="reset-btn" id="reset-sticky">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+    <div class="acc">
+      <div class="acc-head open" data-acc="color"><span class="acc-title">Color</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-color">
+        <div class="color-row">
+          <div class="swatch"><input type="color" id="text-color" value="#242424"><div class="swatch-fill" id="text-color-fill" style="background:#242424"></div></div>
+          <span class="lbl" style="width:auto;flex:1">Object</span>
+          <input type="text" class="hex-input" id="text-color-hex" value="#242424">
+        </div>
+        <div class="color-row">
+          <div class="swatch"><input type="color" id="bg-color" value="#f0f0f0"><div class="swatch-fill" id="bg-color-fill" style="background:#f0f0f0"></div></div>
+          <span class="lbl" style="width:auto;flex:1">Background</span>
+          <input type="text" class="hex-input" id="bg-color-hex" value="#f0f0f0">
+        </div>
+        <button class="reset-btn" id="reset-color">↺ Reset</button>
       </div>
     </div>
 
@@ -415,22 +435,20 @@
           <button class="stroke-btn on" data-stype="off">Off</button>
           <button class="stroke-btn"    data-stype="light">Light</button>
           <button class="stroke-btn"    data-stype="bold">Bold</button>
-          <button class="stroke-btn"    data-stype="dashed-light">Dash L</button>
-          <button class="stroke-btn"    data-stype="dashed-bold">Dash B</button>
         </div>
         <!-- Stroke color -->
         <div class="color-row" id="stroke-color-row" style="display:none">
           <div class="swatch"><input type="color" id="stroke-color" value="#242424"><div class="swatch-fill" id="stroke-color-fill" style="background:#242424"></div></div>
           <span class="lbl" style="width:auto;flex:1">Stroke</span>
-          <span class="hex-label" id="stroke-color-hex">#242424</span>
+          <input type="text" class="hex-input" id="stroke-color-hex" value="#242424">
         </div>
         <button class="reset-btn" id="reset-stroke">↺ Reset</button>
       </div>
     </div>
 
-    <!-- DISTRESS -->
+    <!-- DISTRESSED -->
     <div class="acc">
-      <div class="acc-head" data-acc="distress"><span class="acc-title">Distress</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-head" data-acc="distress"><span class="acc-title">Distressed</span><span class="acc-arrow">▸</span></div>
       <div class="acc-body" id="acc-distress">
         <div class="control-row">
           <span class="lbl">Intensity</span>
@@ -446,28 +464,63 @@
       </div>
     </div>
 
-    <!-- COLOR -->
+    <!-- PERSPECTIVE -->
     <div class="acc">
-      <div class="acc-head" data-acc="color"><span class="acc-title">Color</span><span class="acc-arrow">▸</span></div>
-      <div class="acc-body" id="acc-color">
-        <div class="color-row">
-          <div class="swatch"><input type="color" id="text-color" value="#242424"><div class="swatch-fill" id="text-color-fill" style="background:#242424"></div></div>
-          <span class="lbl" style="width:auto;flex:1">Object</span>
-          <span class="hex-label" id="text-color-hex">#242424</span>
+      <div class="acc-head" data-acc="persp"><span class="acc-title">Perspective</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-persp">
+        <div class="pill-grid-2" id="persp-dir-grid" style="margin-bottom:8px">
+          <button class="stroke-btn on" data-pdir="left">Left</button>
+          <button class="stroke-btn"    data-pdir="right">Right</button>
+          <button class="stroke-btn"    data-pdir="top">Top</button>
+          <button class="stroke-btn"    data-pdir="bottom">Bottom</button>
         </div>
-        <div class="color-row">
-          <div class="swatch"><input type="color" id="bg-color" value="#f0f0f0"><div class="swatch-fill" id="bg-color-fill" style="background:#f0f0f0"></div></div>
-          <span class="lbl" style="width:auto;flex:1">Background</span>
-          <span class="hex-label" id="bg-color-hex">#f0f0f0</span>
+        <div class="control-row" style="margin-bottom:0">
+          <span class="lbl">Amount</span>
+          <input type="range" id="persp-amount" min="0" max="1" value="0" step="0.05">
+          <input type="number" class="val-input" id="persp-amount-val" min="0" max="1" step="0.05" value="0">
         </div>
-        <button class="reset-btn" id="reset-color">↺ Reset</button>
+        <button class="reset-btn" id="reset-persp">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- ARCH -->
+    <div class="acc">
+      <div class="acc-head" data-acc="arch"><span class="acc-title">Arch</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-arch">
+        <div class="toggle-row" style="margin-bottom:12px;border-bottom:none;padding:0">
+          <span class="toggle-label">Arch</span>
+          <label class="toggle">
+            <input type="checkbox" id="arch-toggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="control-row" id="arch-bend-row">
+          <span class="lbl">Bend</span>
+          <input type="range" id="arch-amount" min="-1" max="1" value="0.3" step="0.05">
+          <input type="number" class="val-input" id="arch-amount-val" min="-1" max="1" step="0.05" value="0.3">
+        </div>
+        <button class="reset-btn" id="reset-arch">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- FISHEYE -->
+    <div class="acc">
+      <div class="acc-head" data-acc="fisheye"><span class="acc-title">Fisheye</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-fisheye">
+        <div class="control-row" style="margin-bottom:0">
+          <span class="lbl">Amount</span>
+          <input type="range" id="lens-amount" min="0" max="2" value="0" step="0.05">
+          <input type="number" class="val-input" id="lens-amount-val" min="0" max="2" step="0.05" value="0">
+        </div>
+        <button class="reset-btn" id="reset-fisheye">↺ Reset</button>
       </div>
     </div>
 
     <!-- MOTION -->
     <div class="acc">
-      <div class="acc-head" data-acc="motion"><span class="acc-title">Motion</span><span class="acc-arrow">▸</span></div>
-      <div class="acc-body" id="acc-motion">
+      <div class="acc-head open" data-acc="motion"><span class="acc-title">Motion</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body open" id="acc-motion">
 
         <div class="toggle-row">
           <span class="toggle-label">Enable</span>
@@ -486,16 +539,30 @@
             <button class="pill"    data-mtype="bubble">Bubble</button>
             <button class="pill"    data-mtype="flex">Flex</button>
             <button class="pill"    data-mtype="melt">Melt</button>
-            <button class="pill"    data-mtype="pull">Pull</button>
+            <button class="pill"    data-mtype="stretch">Stretch</button>
             <button class="pill"    data-mtype="bounce">Bounce</button>
           </div>
 
           <div class="control-row" style="margin-bottom:10px">
             <span class="lbl">Speed</span>
-            <input type="range" id="motion-speed" min="0.1" max="3" value="0.55" step="0.05">
-            <input type="number" class="val-input" id="motion-speed-val" min="0.1" max="3" step="0.05" value="0.55">
+            <input type="range" id="motion-speed" min="0.1" max="3" value="1" step="0.05">
+            <input type="number" class="val-input" id="motion-speed-val" min="0.1" max="3" step="0.05" value="1">
           </div>
 
+          <div class="control-row" style="margin-bottom:10px">
+            <span class="lbl">Intensity</span>
+            <input type="range" id="motion-intensity" min="0.05" max="1" value="0.5" step="0.01">
+            <input type="number" class="val-input" id="motion-intensity-val" min="0.05" max="1" step="0.01" value="0.5">
+          </div>
+
+          <!-- Bump: Bridge -->
+          <div id="bump-opts" style="display:none;margin-bottom:10px">
+            <div class="control-row">
+              <span class="lbl">Bridge</span>
+              <input type="range" id="bump-bridge" min="0" max="2" value="0.4" step="0.05">
+              <input type="number" class="val-input" id="bump-bridge-val" min="0" max="2" step="0.05" value="0.4">
+            </div>
+          </div>
 
           <!-- Frame controls — collapsible, shown for breathe / wave only -->
           <div id="frame-controls">
@@ -541,40 +608,48 @@
             <input type="number" class="val-input" id="bubble-float-val" min="0" max="1" step="0.01" value="0.5">
           </div>
 
-          <!-- Bump: Bridge — sits between Speed and Intensity -->
-          <div id="bump-opts" style="display:none;margin-top:10px">
-            <div class="control-row">
-              <span class="lbl">Bridge</span>
-              <input type="range" id="bump-bridge" min="0" max="2" value="0.4" step="0.05">
-              <input type="number" class="val-input" id="bump-bridge-val" min="0" max="2" step="0.05" value="0.4">
-            </div>
-          </div>
-
-          <div class="control-row" style="margin-top:10px">
-            <span class="lbl">Intensity</span>
-            <input type="range" id="motion-intensity" min="0.05" max="1" value="0.3" step="0.01">
-            <input type="number" class="val-input" id="motion-intensity-val" min="0.05" max="1" step="0.01" value="0.3">
-          </div>
-
-          <!-- Bump: Direction — sits after Intensity -->
+          <!-- Bump: Direction -->
           <div id="bump-opts-bottom" style="display:none;margin-top:10px">
             <div style="margin-bottom:4px;font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase">Direction</div>
             <div class="pill-grid-2" id="bump-dir-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
-              <button class="pill" data-bdir="ltr">L→R</button>
-              <button class="pill on" data-bdir="random">Random</button>
+              <button class="pill on" data-bdir="ltr">L→R</button>
+              <button class="pill" data-bdir="random">Random</button>
             </div>
           </div>
         </div>
         <button class="reset-btn" id="reset-motion">↺ Reset</button>
       </div>
     </div>
+
+    <!-- EXPORT -->
+    <div class="acc">
+      <div class="acc-head" data-acc="export"><span class="acc-title">Export</span><span class="acc-arrow">▸</span></div>
+      <div class="acc-body" id="acc-export">
+        <div class="toggle-row" style="margin-bottom:14px">
+          <span class="toggle-label">Transparent BG</span>
+          <label class="toggle">
+            <input type="checkbox" id="transparent-toggle">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px">
+          <button class="btn-ghost" id="export-png-btn" style="letter-spacing:.18em">PNG</button>
+          <button class="btn-ghost" id="export-gif-btn" style="letter-spacing:.18em">GIF</button>
+          <button class="btn-ghost" id="export-mp4-btn" style="letter-spacing:.18em">MP4</button>
+        </div>
+        <div class="control-row" style="margin-bottom:0">
+          <span class="lbl">Duration</span>
+          <input type="range" id="export-dur-slider" min="1" max="10" value="3" step="1" style="flex:1;min-width:0">
+          <input type="number" class="val-input" id="export-dur-val" min="1" max="10" step="1" value="3">
+          <span style="font-size:9px;color:var(--muted);flex-shrink:0">s</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="panel-footer">
     <button class="btn-ghost" id="play-btn" style="font-size:10px;letter-spacing:.12em">▶  Play</button>
-    <button class="btn-primary" id="export-png-btn">Export PNG</button>
-    <button class="btn-ghost"   id="export-gif-btn">Export GIF (motion)</button>
-    <button class="btn-ghost"   id="export-mp4-btn">Export MP4 (motion)</button>
   </div>
 </div>
 
@@ -583,8 +658,6 @@
     <div id="canvas-content">
       <div id="text-transform-layer">
         <div id="sticky-text"></div>
-        <svg id="stroke-dash-svg" xmlns="http://www.w3.org/2000/svg"
-             style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;display:none;overflow:visible"></svg>
       </div>
     </div>
   </div>
@@ -617,6 +690,12 @@
   <div class="bbox-handle" data-corner="se"></div>
 </div>
 
+<!-- Export progress overlay -->
+<div id="export-progress">
+  <p id="export-prog-msg">Rendering…</p>
+  <div id="export-prog-bar"><div id="export-prog-fill"></div></div>
+</div>
+
 <!-- Hover motion preview -->
 <div id="hover-preview">
   <div id="hp-wrap">
@@ -640,11 +719,15 @@ const S = {
   fontFamily:'Delight',
   stickyMerge:6.5, stickyThresh:39.5, stickyCutoff:-20.5,
   textColor:'#242424', bgColor:'#f0f0f0', ratio:'free', transparentBg:false,
-  motionOn:false, motionType:'breathe', motionSpeed:0.55, motionIntensity:0.3,
+  motionOn:false, motionType:'breathe', motionSpeed:1, motionIntensity:0.5,
   fsThresh:22, fsCutoff:-14, feThresh:36, feCutoff:-6,
-  bubbleFloat:0.5, bumpBridge:0.4, bumpDir:'random',
+  bubbleFloat:0.5, bumpBridge:0.4, bumpDir:'ltr',
   strokeType:'off', fillOn:true, strokeColor:'#242424',
   distressIntensity:0, distressSeed:9,
+  archOn:false, archAmount:0.3,
+  lensAmount:0,
+  perspDir:'left', perspAmount:0,
+  textAlign:'center',
 };
 
 
@@ -666,16 +749,14 @@ const fStrokeFlood  = document.getElementById('f-stroke-flood');
 const fFillAlpha    = document.getElementById('f-fill-alpha');
 const fDashThresh    = document.getElementById('f-dash-thresh');
 const fDashSelect    = document.getElementById('f-dash-select');
-const strokeDashSvg  = document.getElementById('stroke-dash-svg');
-let dashG = null;
 const motionInner = document.getElementById('motion-inner');
 
 // ── Per-character rendering ─────────────────────────
-let charEls = [], charOffsets = [], charScales = [], drag = null;
+let charEls = [], charOffsets = [], charScales = [], shapeOffsets = [], drag = null;
 
 function renderChars() {
   stickyText.innerHTML = '';
-  charEls = []; charOffsets = []; charScales = [];
+  charEls = []; charOffsets = []; charScales = []; shapeOffsets = [];
   S.text.split('\n').forEach(line => {
     const lineDiv = document.createElement('div');
     lineDiv.className = 'text-line';
@@ -686,6 +767,7 @@ function renderChars() {
       charEls.push(el);
       charOffsets.push({x:0, y:0});
       charScales.push({x:1, y:1});
+      shapeOffsets.push({x:0, y:0, r:0, sx:1, sy:1});
     });
     stickyText.appendChild(lineDiv);
   });
@@ -693,10 +775,164 @@ function renderChars() {
 
 function applyCharTransform(i) {
   const {x, y} = charOffsets[i];
-  const {x: sx, y: sy} = charScales[i];
-  let t = `translate(${x}px,${y}px)`;
-  if (sx !== 1 || sy !== 1) t += ` scaleX(${sx.toFixed(4)}) scaleY(${sy.toFixed(4)})`;
+  const {x: usx, y: usy} = charScales[i];
+  const so = shapeOffsets[i] || {x:0, y:0, r:0, sx:1, sy:1};
+  let t = `translate(${x + so.x}px,${y + so.y}px)`;
+  if (so.r) t += ` rotate(${so.r.toFixed(3)}deg)`;
+  const fsx = usx * so.sx, fsy = usy * so.sy;
+  if (fsx !== 1 || fsy !== 1) t += ` scaleX(${fsx.toFixed(4)}) scaleY(${fsy.toFixed(4)})`;
   charEls[i].style.transform = t;
+}
+
+// ── Shapes (Arch + Bulge + Perspective) ────────────
+let _shapeTimer = null;
+
+function applyShape() {
+  shapeOffsets.forEach(so => { so.x=0; so.y=0; so.r=0; so.sx=1; so.sy=1; });
+  charEls.forEach((_, i) => applyCharTransform(i));
+
+  // Always clear CSS transform BEFORE measuring — getBoundingClientRect() is
+  // affected by ancestor CSS transforms, so we must measure in flat space first,
+  // then restore the CSS 3D tilt at the very end.
+  stickyText.style.transform = '';
+
+  const pA  = S.perspAmount;
+  const dir = S.perspDir;
+  const isLR = pA > 0.001 && (dir === 'left' || dir === 'right');
+  const isTB = pA > 0.001 && (dir === 'top'  || dir === 'bottom');
+
+  const hasArch    = S.archOn && Math.abs(S.archAmount) > 0.001;
+  const hasLens    = Math.abs(S.lensAmount) > 0.001;
+  const hasPerChar = hasArch || hasLens || isLR || isTB;
+
+  if (hasPerChar && charEls.length > 0) {
+    const scale = S.scale * fitScale;
+    const rects = charEls.map(el => el.getBoundingClientRect()); // flat space ✓
+
+    // For center-aligned text, anchor lineCenter to the container's geometric center.
+    // This is completely invariant to letter-spacing and character-width asymmetries.
+    const stRect   = stickyText.getBoundingClientRect();
+    const stCenterX = (stRect.left + stRect.right) / 2;
+
+    // T/B perspective: measure full vertical extent across all lines
+    let allRectTop = Infinity, allRectBottom = -Infinity;
+    const isMultiLine = S.text.includes('\n');
+    if (isTB && isMultiLine) {
+      rects.forEach(r => {
+        if (r.top    < allRectTop)    allRectTop    = r.top;
+        if (r.bottom > allRectBottom) allRectBottom = r.bottom;
+      });
+    }
+    const totalTextH = allRectBottom - allRectTop;
+
+    let lineStart = 0;
+    S.text.split('\n').forEach(lineText => {
+      const chars = [...lineText];
+      const len   = chars.length;
+      if (len === 0) { lineStart += len; return; }
+
+      const lr         = rects.slice(lineStart, lineStart + len);
+      const lineLeft   = lr[0].left;
+      const lineRight  = lr[len - 1].right;
+      const lineWidth  = lineRight - lineLeft;
+      // Center-aligned: use container center (invariant to kerning/char-width).
+      // Other alignments: use text extent midpoint.
+      const lineCenter = S.textAlign === 'center' ? stCenterX : (lineLeft + lineRight) / 2;
+
+      if (lineWidth < 2) { lineStart += len; return; }
+
+      const archSign = S.archAmount > 0 ? 1 : -1;
+      let archR = 1e9;
+      if (hasArch) {
+        const maxSag = Math.abs(S.archAmount) * lineWidth * 0.5;
+        const halfW  = lineWidth / 2;
+        archR = maxSag > 0.1 ? (halfW*halfW + maxSag*maxSag)/(2*maxSag) : 1e9;
+      }
+
+      // T/B 1-point perspective: depth is determined by this line's Y position
+      let lineDepthTB = 1, linePullY = 0;
+      if (isTB && isMultiLine && totalTextH > 2) {
+        const lineCY  = (lr[0].top + lr[0].bottom) / 2;
+        const lineY_t = (lineCY - allRectTop) / totalTextH; // 0=top, 1=bottom
+        const far     = Math.max(0.06, 1 - pA * 0.92);
+        lineDepthTB   = dir === 'top'
+          ? far + lineY_t * (1 - far)
+          : far + (1 - lineY_t) * (1 - far);
+        // Vertical pull toward VP — lines bunch toward the vanishing point
+        const distFromNear = dir === 'top'
+          ? (allRectBottom - lineCY)
+          : (lineCY - allRectTop);
+        const pull = (1 - lineDepthTB) * distFromNear * pA * 0.45;
+        linePullY = dir === 'top' ? -pull / scale : pull / scale;
+      }
+
+      for (let j = 0; j < len; j++) {
+        const r    = lr[j];
+        const cx   = (r.left + r.right) / 2;
+        const xRel = cx - lineCenter;
+        const tH   = lineWidth > 2 ? xRel / (lineWidth / 2) : 0; // -1..+1
+        const tL   = (tH + 1) / 2;                               // 0=left 1=right
+        const so   = shapeOffsets[lineStart + j];
+
+        if (hasArch) {
+          const th = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, xRel / archR));
+          so.x += (archR * Math.sin(th) - xRel) / scale;
+          so.y += archSign * archR * (1 - Math.cos(th)) / scale;
+          so.r += archSign * th * (180 / Math.PI);
+        }
+
+        // Fisheye: Illustrator-style Bulge warp — cosine bell curve on scaleY/scaleX
+        // No position remapping. Center chars taller, edges shorter, smooth hill curve.
+        if (hasLens) {
+          const a    = S.lensAmount;                           // 0–2
+          const bell = Math.cos(tH * Math.PI * 0.5);          // 1 at center → 0 at edge
+          const sy   = Math.max(0.20, 1 + a * (bell * 0.65 - 0.20));
+          const sx   = Math.max(0.40, 1 + a * (bell * 0.18 - 0.06));
+          so.sy *= sy;
+          so.sx *= sx;
+        }
+
+        // L/R 1-point perspective: height foreshortening, min 0.25 to keep gooey forms visible
+        if (isLR) {
+          const far   = Math.max(0.25, 1 - pA * 0.72);
+          const depth = dir === 'left'
+            ? far + tL * (1 - far)
+            : far + (1 - tL) * (1 - far);
+          so.sy *= depth;
+          so.y  += r.height / (2 * scale) * (1 - depth);
+        }
+
+        // T/B 1-point perspective (multi-line): uniform scale per line + convergence
+        if (isTB && isMultiLine) {
+          so.sy *= lineDepthTB;
+          so.sx *= lineDepthTB;
+          so.x  += xRel * (lineDepthTB - 1) / scale;
+          so.y  += r.height / (2 * scale) * (1 - lineDepthTB) + linePullY;
+        }
+      }
+
+      lineStart += len;
+    });
+
+    charEls.forEach((_, i) => applyCharTransform(i));
+  }
+
+  // CSS 3D tilt
+  if (pA > 0.001) {
+    const angLR = pA * 28;
+    const angTB = pA * 62;
+    const pd    = '380px';
+    const tmap  = { left:   `perspective(${pd}) rotateY(-${angLR}deg)`,
+                    right:  `perspective(${pd}) rotateY(${angLR}deg)`,
+                    top:    `perspective(${pd}) rotateX(${angTB}deg)`,
+                    bottom: `perspective(${pd}) rotateX(-${angTB}deg)` };
+    stickyText.style.transform = tmap[dir] || '';
+  }
+}
+
+function scheduleShape() {
+  clearTimeout(_shapeTimer);
+  _shapeTimer = setTimeout(applyShape, 90);
 }
 
 // ── Selection & Bounding Box ───────────────────────
@@ -936,7 +1172,15 @@ document.addEventListener('keydown', e => {
     e.preventDefault(); popHistory();
   }
   if (e.key === ' ' && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
-    e.preventDefault(); toggleMotion(!S.motionOn);
+    e.preventDefault();
+    if (S.motionOn) {
+      if (animFrame) {
+        animPauseElapsed = animStart ? (performance.now() - animStart) : 0;
+        cancelAnimationFrame(animFrame); animFrame = null; setPlayBtn(false);
+      } else {
+        startMotion(animPauseElapsed); setPlayBtn(true);
+      }
+    }
   }
 });
 
@@ -1006,12 +1250,13 @@ function recalcFit() {
   clearTimeout(_fitTimer);
   _fitTimer = setTimeout(() => {
     if (S.motionOn) return;
-    const prev = fitScale; fitScale = 1; compositeTransform();
-    const tr = stickyText.getBoundingClientRect();
     const cr = canvasWrap.getBoundingClientRect();
-    fitScale = prev; compositeTransform();
-    if (!cr.width || !tr.width) return;
-    const needed = Math.min(1, cr.width / tr.width, cr.height / tr.height);
+    if (!cr.width || !cr.height) return;
+    // Use offsetWidth (layout-based) so compositor-thread transforms don't skew the read
+    const natW = stickyText.offsetWidth;
+    const natH = stickyText.offsetHeight;
+    if (!natW || !natH) return;
+    const needed = Math.min(1, cr.width / (natW * S.scale), cr.height / (natH * S.scale));
     if (Math.abs(needed - fitTarget) > 0.001) { fitTarget = needed; _animFitScale(); }
   }, 60);
 }
@@ -1020,7 +1265,7 @@ function _animFitScale() {
   if (_fitAF) cancelAnimationFrame(_fitAF);
   (function step() {
     const d = fitTarget - fitScale;
-    if (Math.abs(d) < 0.0005) { fitScale = fitTarget; compositeTransform(); _fitAF = null; return; }
+    if (Math.abs(d) < 0.0005) { fitScale = fitTarget; compositeTransform(); _fitAF = null; applyShape(); return; }
     fitScale += d * 0.15;
     compositeTransform();
     _fitAF = requestAnimationFrame(step);
@@ -1036,7 +1281,7 @@ function updateFilter(blur, thresh, cutoff) {
   const tt = thresh ?? S.stickyThresh;
   const c  = cutoff ?? S.stickyCutoff;
 
-  const isSerif = S.fontFamily === 'LibreBaskerville' || S.fontFamily === 'BookkMyungjo';
+  const isSerif = S.fontFamily === 'LibreBaskerville';
   const blurVal  = Math.max(0, b);
   fBlur.setAttribute('stdDeviation', blurVal.toFixed(2));
   // Serif fonts have thinner strokes → need more dilation to bridge when close.
@@ -1065,70 +1310,18 @@ function applyDistress() {
 }
 
 // ── Stroke ─────────────────────────────────────────
-const STROKE_BLUR = { off:0, light:4, bold:8.5, 'dashed-light':4, 'dashed-bold':8.5 };
-
-function buildDashSvg() {
-  const svgNS = 'http://www.w3.org/2000/svg';
-  strokeDashSvg.innerHTML = '';
-  dashG = document.createElementNS(svgNS, 'g');
-
-  const lines  = S.text.split('\n');
-  const n      = lines.length;
-  const fs     = S.fontSize;
-  const lh     = S.lineHeight;
-  const isBold = S.strokeType === 'dashed-bold';
-  const sw     = isBold ? 5 : 2;
-  const dash   = fs * (isBold ? 0.12 : 0.10);
-  const gap    = fs * (isBold ? 0.07 : 0.06);
-  const cx     = textTransformLayer.offsetWidth  / 2;
-  const cy     = textTransformLayer.offsetHeight / 2;
-
-  lines.forEach((line, i) => {
-    const txt = document.createElementNS(svgNS, 'text');
-    txt.setAttribute('x', cx);
-    txt.setAttribute('y', cy + (i - (n - 1) / 2) * lh * fs);
-    txt.setAttribute('text-anchor', 'middle');
-    txt.setAttribute('dominant-baseline', 'central');
-    txt.setAttribute('font-family', `'${S.fontFamily}',system-ui,sans-serif`);
-    txt.setAttribute('font-size', fs + 'px');
-    txt.setAttribute('font-weight', S.fontWeight);
-    txt.setAttribute('letter-spacing', S.kerning + 'em');
-    txt.setAttribute('fill', 'none');
-    txt.setAttribute('stroke', S.strokeColor);
-    txt.setAttribute('stroke-width', sw);
-    txt.setAttribute('stroke-dasharray', `${dash} ${gap}`);
-    txt.setAttribute('stroke-linecap', 'round');
-    txt.textContent = line || ' ';
-    dashG.appendChild(txt);
-  });
-
-  strokeDashSvg.appendChild(dashG);
-}
-
-function syncDashTransform() {
-  // no-op: strokeDashSvg is inside textTransformLayer — moves with it automatically
-}
+const STROKE_BLUR = { off:0, light:4, bold:8.5 };
 
 function applyStroke() {
-  const type     = S.strokeType;
-  const isDashed = type === 'dashed-light' || type === 'dashed-bold';
+  const type = S.strokeType;
 
   const fillAlpha = S.fillOn ? '0 0 0 1 0' : '0 0 0 0 0';
   fFillAlpha.setAttribute('values', `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  ${fillAlpha}`);
 
-  // For dashed: no filter-based stroke ring (SVG overlay handles it)
-  fStrokeBlur.setAttribute('stdDeviation', isDashed ? 0 : (STROKE_BLUR[type] ?? 0));
-  fDashSelect.setAttribute('k2', '1');
+  fStrokeBlur.setAttribute('stdDeviation', STROKE_BLUR[type] ?? 0);
+  fDashSelect.setAttribute('k2', type === 'off' ? '0' : '1');
   fDashSelect.setAttribute('k3', '0');
   fStrokeFlood.setAttribute('flood-color', S.strokeColor);
-
-  if (isDashed) {
-    strokeDashSvg.style.display = 'block';
-    buildDashSvg();
-  } else {
-    strokeDashSvg.style.display = 'none';
-    dashG = null;
-  }
 }
 
 // ── Line height visibility ──────────────────────────
@@ -1148,18 +1341,20 @@ function applyAll() {
   stickyText.style.letterSpacing = S.kerning + 'em';
   stickyText.style.lineHeight    = S.lineHeight;
   stickyText.style.color         = S.textColor;
+  stickyText.style.textAlign     = S.textAlign;
   canvasWrap.style.background    = S.transparentBg ? '' : S.bgColor;
   canvasWrap.classList.toggle('canvas-transparent', S.transparentBg);
   compositeTransform();
   if (!S.motionOn) updateFilter();
-  else if (['bubble','flex','melt','pull','bounce'].includes(S.motionType)) updateFilter();
+  else if (['bubble','flex','melt','stretch','bounce'].includes(S.motionType)) updateFilter();
   document.getElementById('info-weight').textContent = WEIGHT_NAMES[S.fontWeight] || S.fontWeight;
   document.getElementById('info-sticky').textContent = `${S.stickyMerge} / ${S.stickyThresh}`;
   recalcFit();
+  if (!S.motionOn) scheduleShape();
 }
 
 // ── Motion engine ──────────────────────────────────
-let animFrame = null, animStart = null;
+let animFrame = null, animStart = null, animPauseElapsed = 0;
 const lerp = (a,b,t) => a + (b-a)*t;
 const hash  = s => { const v = Math.sin(s) * 43758.5453123; return v - Math.floor(v); };
 
@@ -1167,17 +1362,11 @@ function applyFrameFilter(t) {
   updateFilter(S.stickyMerge, lerp(S.fsThresh,S.feThresh,t), lerp(S.fsCutoff,S.feCutoff,t));
 }
 
-function startMotion() {
-  stopMotion(); animStart = null;
-  let easeInStart = null;
-
-  function tick(ts) {
-    if (!animStart) { animStart = ts; easeInStart = ts; }
-    const rawT = (ts - animStart) / 1000;
+// Pure renderer — drives DOM to a specific animation time. Used by the live
+// rAF loop AND by the offline export pipeline (no real-time wait needed).
+function renderMotionFrame(rawT, easeInP = 1) {
     const t    = rawT * S.motionSpeed;
     const phi  = t * Math.PI * 2;
-    // Ease-in over 450ms so motion always starts from current visual state
-    const easeInP = Math.min(1, (ts - easeInStart) / 450);
     const I    = S.motionIntensity * easeOutCubic(easeInP);
     const osc  = Math.sin(phi * 0.7);
     const lerpT = (osc + 1) / 2;
@@ -1215,7 +1404,8 @@ function startMotion() {
           el.style.filter = '';
           const {x, y} = charOffsets[i];
           const {x:csx, y:csy} = charScales[i];
-          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+          const so1 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+          el.style.transform = `translate(${x+so1.x}px,${y+so1.y}px)${so1.r?` rotate(${so1.r.toFixed(3)}deg)`:''} scaleX(${(csx*scaleX*so1.sx).toFixed(4)}) scaleY(${(csy*scaleY*so1.sy).toFixed(4)})`;
         });
       } else {
         // Random: each char oscillates at its own phase — no directional bias.
@@ -1229,7 +1419,8 @@ function startMotion() {
           el.style.filter = '';
           const {x, y} = charOffsets[i];
           const {x:csx, y:csy} = charScales[i];
-          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+          const so1 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+          el.style.transform = `translate(${x+so1.x}px,${y+so1.y}px)${so1.r?` rotate(${so1.r.toFixed(3)}deg)`:''} scaleX(${(csx*scaleX*so1.sx).toFixed(4)}) scaleY(${(csy*scaleY*so1.sy).toFixed(4)})`;
         });
       }
 
@@ -1267,7 +1458,8 @@ function startMotion() {
         const skew = osc2*I*22;
         const {x,y} = charOffsets[i];
         const {x:csx, y:csy} = charScales[i];
-        el.style.transform = `translate(${x}px,${y+floatY}px) scaleX(${(csx*sx).toFixed(4)}) scaleY(${csy.toFixed(4)}) skewX(${skew}deg)`;
+        const so2 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+        el.style.transform = `translate(${x+so2.x}px,${y+floatY+so2.y}px)${so2.r?` rotate(${so2.r.toFixed(3)}deg)`:''} scaleX(${(csx*sx*so2.sx).toFixed(4)}) scaleY(${(csy*so2.sy).toFixed(4)}) skewX(${skew}deg)`;
       });
       compositeTransform();
 
@@ -1280,35 +1472,62 @@ function startMotion() {
       const beatIdx      = Math.floor(rawT / beatDur);
       const beatProgress = (rawT % beatDur) / beatDur;
 
-      const snapRatio = 0.5;
-      const easeT = beatProgress < snapRatio
-        ? (1 - Math.cos(Math.PI * beatProgress / snapRatio)) / 2
-        : 1;
+      // Cubic ease-in over full beat — slow start, steady acceleration, clean beat joins
+      const easeT = Math.pow(beatProgress, 3);
 
-      const spread = I * 0.8;
+      const spread = I * 1.7;
+      const oblSkew = I * 18;
 
-      const numOblique = Math.floor(n * 0.3);
-      function obliqueSet(bIdx) {
-        if (numOblique <= 0) return new Set();
-        const ranked = [...Array(n).keys()].sort((a, b) =>
-          hash(bIdx * 137.1 + a * 311.7) - hash(bIdx * 137.1 + b * 311.7));
-        return new Set(ranked.slice(0, numOblique));
+      // Pick adjacent pair (i, i+1) with best combined hash — maximises gooey merge
+      function activeSet(bIdx) {
+        if (n < 2) return new Set([0]);
+        let best = -Infinity, bestI = 0;
+        for (let i = 0; i < n - 1; i++) {
+          const s = hash(bIdx * 137.1 + i * 53.7) + hash(bIdx * 251.3 + (i+1) * 97.1);
+          if (s > best) { best = s; bestI = i; }
+        }
+        return new Set([bestI, bestI + 1]);
       }
-      const curObl = obliqueSet(beatIdx);
-      const prvObl = obliqueSet(beatIdx - 1);
+      // Both active chars stretch wide (always > 1) so they push into each other
+      function buildTargets(bIdx, active) {
+        const t = new Map();
+        for (const i of active) {
+          const v = hash(bIdx * 127.1 + i * 311.7); // 0..1
+          t.set(i, 1 + (0.35 + v * 0.65) * spread);
+        }
+        return t;
+      }
+      // Direct neighbours widen slightly (sympathetic, not opposing)
+      function getSx(i, active, targets) {
+        if (active.has(i)) return targets.get(i);
+        const lEx = (targets.get(i-1) ?? 1) - 1;
+        const rEx = (targets.get(i+1) ?? 1) - 1;
+        return 1 + (lEx + rEx) * 0.15;
+      }
+      const curActive = activeSet(beatIdx);
+      const prvActive = activeSet(beatIdx - 1);
+      const curT = buildTargets(beatIdx, curActive);
+      const prvT = buildTargets(beatIdx - 1, prvActive);
+
+      // Oblique on the wider of the two active chars (reuse already-built targets)
+      const [oA, oB]   = [...curActive];
+      const oblIdx     = (curT.get(oA) ?? 1) >= (curT.get(oB) ?? 1) ? oA : oB;
+      const [pA, pB]   = [...prvActive];
+      const prvOblIdx  = (prvT.get(pA) ?? 1) >= (prvT.get(pB) ?? 1) ? pA : pB;
 
       charEls.forEach((el, i) => {
-        const tSx   = Math.max(0.2, 1 + (hash( beatIdx   *127.1 + i*311.7) - 0.5) * 2 * spread);
-        const tSkew = curObl.has(i) ? (hash( beatIdx   *269.5 + i*183.3) - 0.5) * 2 * I * 24 : 0;
-        const pSx   = Math.max(0.2, 1 + (hash((beatIdx-1)*127.1 + i*311.7) - 0.5) * 2 * spread);
-        const pSkew = prvObl.has(i) ? (hash((beatIdx-1)*269.5 + i*183.3) - 0.5) * 2 * I * 24 : 0;
+        const tSx   = getSx(i, curActive, curT);
+        const pSx   = getSx(i, prvActive, prvT);
+        const curSx = pSx + (tSx - pSx) * easeT;
 
-        const curSx   = pSx   + (tSx   - pSx)   * easeT;
-        const curSkew = pSkew + (tSkew - pSkew) * easeT;
+        const tSk  = (i === oblIdx)    ? oblSkew : 0;
+        const pSk  = (i === prvOblIdx) ? oblSkew : 0;
+        const curSk = pSk + (tSk - pSk) * easeT;
 
         const {x,y} = charOffsets[i];
         const {x:csx, y:csy} = charScales[i];
-        el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx*curSx).toFixed(4)}) scaleY(${csy.toFixed(4)}) skewX(${curSkew}deg)`;
+        const so3 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+        el.style.transform = `translate(${x+so3.x}px,${y+so3.y}px)${so3.r?` rotate(${so3.r.toFixed(3)}deg)`:''} scaleX(${(csx*curSx*so3.sx).toFixed(4)}) scaleY(${(csy*so3.sy).toFixed(4)}) skewX(${curSk.toFixed(2)}deg)`;
       });
 
       compositeTransform();
@@ -1332,7 +1551,8 @@ function startMotion() {
 
         const {x, y} = charOffsets[i];
         const {x:csx, y:csy} = charScales[i];
-        el.style.transform = `translate(${x}px,${y + dropY}px) scaleX(${(csx * sx).toFixed(4)}) scaleY(${(csy * sy).toFixed(4)})`;
+        const so4 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+        el.style.transform = `translate(${x+so4.x}px,${y+dropY+so4.y}px)${so4.r?` rotate(${so4.r.toFixed(3)}deg)`:''} scaleX(${(csx*sx*so4.sx).toFixed(4)}) scaleY(${(csy*sy*so4.sy).toFixed(4)})`;
         el.style.filter = '';
       });
 
@@ -1366,14 +1586,15 @@ function startMotion() {
         el.style.filter = '';
         const {x, y} = charOffsets[i];
         const {x:csx, y:csy} = charScales[i];
-        el.style.transform = `translate(${x}px,${y+ty}px) scaleX(${(csx*scaleX).toFixed(4)}) scaleY(${(csy*scaleY).toFixed(4)})`;
+        const so5 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+        el.style.transform = `translate(${x+so5.x}px,${y+ty+so5.y}px)${so5.r?` rotate(${so5.r.toFixed(3)}deg)`:''} scaleX(${(csx*scaleX*so5.sx).toFixed(4)}) scaleY(${(csy*scaleY*so5.sy).toFixed(4)})`;
       });
 
       updateFilter();
       compositeTransform();
 
-    } else if (S.motionType === 'pull') {
-      // PULL: single arc — compress (pullT:-1) → stretch (pullT:+1) → return.
+    } else if (S.motionType === 'stretch') {
+      // STRETCH: single arc — compress (pullT:-1) → stretch (pullT:+1) → return.
       // The compressed state flows directly into stretch with no gap.
       mot.x=0; mot.y=0; mot.r=0; mot.s=1;
 
@@ -1408,7 +1629,8 @@ function startMotion() {
           el.style.filter = '';
           const {x, y} = charOffsets[i];
           const {x: csx, y: csy} = charScales[i];
-          el.style.transform = `translate(${x}px,${y}px) scaleX(${(csx * cSx).toFixed(4)}) scaleY(${(csy * cSy).toFixed(4)})`;
+          const so6 = shapeOffsets[i]||{x:0,y:0,r:0,sx:1,sy:1};
+          el.style.transform = `translate(${x+so6.x}px,${y+so6.y}px)${so6.r?` rotate(${so6.r.toFixed(3)}deg)`:''} scaleX(${(csx*cSx*so6.sx).toFixed(4)}) scaleY(${(csy*cSy*so6.sy).toFixed(4)})`;
         });
         stickyText.style.letterSpacing = (S.kerning - pullT * I * 0.05) + 'em';
       }
@@ -1424,7 +1646,16 @@ function startMotion() {
       compositeTransform();
 
     }
+}
 
+function startMotion(resumeFromMs = 0) {
+  stopMotion(); animStart = null;
+  let easeInStart = null;
+  function tick(ts) {
+    if (!animStart) { animStart = ts - resumeFromMs; easeInStart = ts; }
+    const rawT = (ts - animStart) / 1000;
+    const easeInP = Math.min(1, (ts - easeInStart) / 450);
+    renderMotionFrame(rawT, easeInP);
     animFrame = requestAnimationFrame(tick);
   }
   animFrame = requestAnimationFrame(tick);
@@ -1439,6 +1670,7 @@ function stopMotion() {
     el.style.filter = '';
   });
   updateFilter(); compositeTransform();
+  scheduleShape();
 }
 
 function fmtVal(v) {
@@ -1494,9 +1726,16 @@ function bindColor(inputId, key, fillId, hexId) {
   inp.addEventListener('input', () => {
     S[key] = inp.value;
     fill.style.background = inp.value;
-    hex.textContent = inp.value;
+    hex.value = inp.value;
     applyAll();
   });
+  hex.addEventListener('input', () => {
+    const v = hex.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+      S[key] = v; inp.value = v; fill.style.background = v; applyAll();
+    }
+  });
+  hex.addEventListener('blur', () => { hex.value = S[key]; });
 }
 
 // ── Text input: max 3 lines ────────────────────────
@@ -1632,9 +1871,16 @@ document.getElementById('fill-toggle').addEventListener('change', e => {
   scInput.addEventListener('input', () => {
     S.strokeColor = scInput.value;
     scFill.style.background = scInput.value;
-    scHex.textContent = scInput.value;
+    scHex.value = scInput.value;
     applyStroke();
   });
+  scHex.addEventListener('input', () => {
+    const v = scHex.value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+      S.strokeColor = v; scInput.value = v; scFill.style.background = v; applyStroke();
+    }
+  });
+  scHex.addEventListener('blur', () => { scHex.value = S.strokeColor; });
 }
 
 document.getElementById('ratio-grid').addEventListener('click', e => {
@@ -1652,7 +1898,14 @@ document.getElementById('transparent-toggle').addEventListener('change', e => {
 // ── Motion bindings ────────────────────────────────
 function toggleMotion(on) {
   S.motionOn = on;
-  if (on) clearSelection();
+  if (on) {
+    clearSelection();
+    const accBody = document.getElementById('acc-motion');
+    const accHead = document.querySelector('[data-acc="motion"]');
+    if (!accBody.classList.contains('open')) {
+      accBody.classList.add('open'); accHead.classList.add('open');
+    }
+  }
   document.getElementById('motion-toggle').checked = on;
   motionInner.classList.toggle('off', !on);
   document.getElementById('info-motion').textContent = on ? S.motionType : '—';
@@ -1735,116 +1988,424 @@ document.getElementById('bump-dir-grid').addEventListener('click', e => {
   S.bumpDir = btn.dataset.bdir;
 });
 
-// ── Export PNG ─────────────────────────────────────
-document.getElementById('export-png-btn').addEventListener('click', () => {
-  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=window.devicePixelRatio||2;
-  const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
-  const bgRect = S.transparentBg ? '' : `<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
-  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
-  const img=new Image();
-  img.onload=()=>{
-    const c=document.createElement('canvas'); c.width=w*dpr; c.height=h*dpr;
-    const ctx=c.getContext('2d');
-    if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,w*dpr,h*dpr);}
-    ctx.scale(dpr,dpr); ctx.drawImage(img,0,0);
+// ── Export: progress overlay ───────────────────────
+function showProgress(msg, p) {
+  document.getElementById('export-prog-msg').textContent = msg;
+  document.getElementById('export-prog-fill').style.width = (p * 100) + '%';
+  document.getElementById('export-progress').classList.add('show');
+}
+function setProgress(p) { document.getElementById('export-prog-fill').style.width = (p * 100) + '%'; }
+function hideProgress() { document.getElementById('export-progress').classList.remove('show'); }
+
+function download(url, name) {
+  Object.assign(document.createElement('a'), { href: url, download: name }).click();
+}
+
+// ── Export: duration ───────────────────────────────
+let exportDuration = 3;
+{
+  const slider = document.getElementById('export-dur-slider');
+  const numIn  = document.getElementById('export-dur-val');
+  slider.addEventListener('input', () => {
+    exportDuration = parseInt(slider.value);
+    numIn.value = exportDuration;
+  });
+  numIn.addEventListener('change', () => {
+    let v = Math.min(10, Math.max(1, parseInt(numIn.value) || 3));
+    exportDuration = v; slider.value = v; numIn.value = v;
+  });
+  numIn.addEventListener('keydown', e => { if (e.key === 'Enter') numIn.dispatchEvent(new Event('change')); });
+}
+
+// ── Export: SVG-based offline rasterizer ───────────
+// Strategy: build a self-contained SVG mirroring the live DOM state (no foreignObject,
+// so no canvas taint), load it via blob URL → Image, then drawImage to a canvas.
+// This gives instant export at full resolution with no permission popup, matching
+// the GameOval approach but with text + SVG filter pipeline preserved.
+
+const FONT_FILES = {
+  'Delight-100': ['fonts/Delight-Thin.woff2',       'woff2'],
+  'Delight-200': ['fonts/Delight-ExtraLight.woff2', 'woff2'],
+  'Delight-300': ['fonts/Delight-Light.woff2',      'woff2'],
+  'Delight-400': ['fonts/Delight-Regular.woff2',    'woff2'],
+  'Delight-500': ['fonts/Delight-Medium.woff2',     'woff2'],
+  'Delight-600': ['fonts/Delight-SemiBold.woff2',   'woff2'],
+  'Delight-700': ['fonts/Delight-Bold.woff2',       'woff2'],
+  'Delight-800': ['fonts/Delight-ExtraBold.woff2',  'woff2'],
+  'Delight-900': ['fonts/Delight-Black.woff2',      'woff2'],
+  'LibreBaskerville-400': ['fonts/LibreBaskerville-Regular.ttf',  'truetype'],
+  'LibreBaskerville-500': ['fonts/LibreBaskerville-Medium.ttf',   'truetype'],
+  'LibreBaskerville-600': ['fonts/LibreBaskerville-SemiBold.ttf', 'truetype'],
+  'LibreBaskerville-700': ['fonts/LibreBaskerville-Bold.ttf',     'truetype'],
+};
+
+const _fontCache = new Map();
+async function getEmbeddedFont(family, weight) {
+  const key = `${family}-${weight}`;
+  if (_fontCache.has(key)) return _fontCache.get(key);
+  const entry = FONT_FILES[key] || FONT_FILES[`${family}-400`];
+  if (!entry) return '';
+  const [url, fmt] = entry;
+  const buf = await (await fetch(url)).arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  const b64 = btoa(bin);
+  const mime = fmt === 'truetype' ? 'font/ttf' : 'font/woff2';
+  const css = `@font-face{font-family:'${family}';font-weight:${weight};font-style:normal;src:url(data:${mime};base64,${b64}) format('${fmt}');}`;
+  _fontCache.set(key, css);
+  return css;
+}
+
+function escapeXML(s) {
+  return s.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
+}
+
+function buildFrameSVG(W, H, fontCSS) {
+  const filterDefs = document.querySelector('#svg-filters defs').innerHTML;
+
+  const stickyCS = getComputedStyle(stickyText);
+  const fontFamily = S.fontFamily;
+  const fontWeight = S.fontWeight;
+  const fontSizePx = parseFloat(stickyCS.fontSize);
+  const lineHeightPx = parseFloat(stickyCS.lineHeight) || fontSizePx * S.lineHeight;
+  const color = stickyCS.color;
+  const wantsFilter = stickyText.style.filter && stickyText.style.filter !== 'none';
+  const filterAttr = wantsFilter ? ' filter="url(#sticky-filter)"' : '';
+
+  // Approximate alphabetic baseline offset within an inline-block span:
+  // span height = lineHeight; glyph baseline ≈ leading/2 + ascent.
+  // Empirical for both Delight and LibreBaskerville: baseline ≈ top + lineHeight*0.5 + fontSize*0.28
+  const baselineOffset = (lineHeightPx - fontSizePx) / 2 + fontSizePx * 0.78;
+
+  // textTransformLayer fills (0,0)-(W,H) of canvasWrap, transform-origin = center.
+  const layerCS = getComputedStyle(textTransformLayer);
+  let layerTransform = '';
+  if (layerCS.transform && layerCS.transform !== 'none') {
+    const m = new DOMMatrix(layerCS.transform);
+    const cx = W / 2, cy = H / 2;
+    layerTransform = ` transform="translate(${cx} ${cy}) matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f}) translate(${-cx} ${-cy})"`;
+  }
+
+  // Per-char text elements. offsetLeft/offsetTop walk to the nearest positioned
+  // ancestor (textTransformLayer), so the values are already in layer coords.
+  const parts = [];
+  for (let i = 0; i < charEls.length; i++) {
+    const el = charEls[i];
+    const x = el.offsetLeft, y = el.offsetTop;
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const cs = getComputedStyle(el);
+    const ch = escapeXML(el.textContent);
+    let tr = '';
+    if (cs.transform && cs.transform !== 'none') {
+      const m = new DOMMatrix(cs.transform);
+      const ox = x + w / 2, oy = y + h / 2;
+      tr = ` transform="translate(${ox} ${oy}) matrix(${m.a} ${m.b} ${m.c} ${m.d} ${m.e} ${m.f}) translate(${-ox} ${-oy})"`;
+    }
+    parts.push(`<g${tr}><text x="${x}" y="${y + baselineOffset}" xml:space="preserve">${ch}</text></g>`);
+  }
+
+  const bg = S.transparentBg ? '' : `<rect width="${W}" height="${H}" fill="${S.bgColor}"/>`;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<defs>
+<style><![CDATA[${fontCSS}]]></style>
+${filterDefs}
+</defs>
+${bg}
+<g${layerTransform}>
+<g${filterAttr} font-family="'${fontFamily}'" font-weight="${fontWeight}" font-size="${fontSizePx}" fill="${color}" text-rendering="geometricPrecision">
+${parts.join('\n')}
+</g>
+</g>
+</svg>`;
+}
+
+async function rasterizeFrameToCanvas(W, H, fontCSS, outCanvas) {
+  const svg = buildFrameSVG(W, H, fontCSS);
+  const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    img.decoding = 'sync';
+    img.src = url;
+    await img.decode();
+    const cv = outCanvas || document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const cx = cv.getContext('2d', { colorSpace: 'srgb' });
+    cx.clearRect(0, 0, W, H);
+    cx.drawImage(img, 0, 0, W, H);
+    return cv;
+  } finally {
     URL.revokeObjectURL(url);
-    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.png`,href:c.toDataURL()}).click();
-  };
-  img.src=url;
+  }
+}
+
+function getExportSize() {
+  const r = canvasWrap.getBoundingClientRect();
+  return { W: Math.round(r.width), H: Math.round(r.height) };
+}
+
+// ── Export PNG ─────────────────────────────────────
+document.getElementById('export-png-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('export-png-btn');
+  btn.textContent = '…'; btn.style.opacity = '.5';
+  try {
+    const { W, H } = getExportSize();
+    const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
+    // ensure layout is fresh
+    void stickyText.offsetWidth;
+    const cv = await rasterizeFrameToCanvas(W, H, fontCSS);
+    download(cv.toDataURL('image/png'), `sticky_${Date.now()}.png`);
+  } catch(e) {
+    console.error(e);
+    alert(e.message || 'PNG Export 실패');
+  }
+  btn.textContent = 'PNG'; btn.style.opacity = '';
 });
 
-// ── Export GIF ─────────────────────────────────────
-document.getElementById('export-gif-btn').addEventListener('click', () => {
+// ── Export GIF (real GIF via gif.js) ───────────────
+let _gifWorkerUrl = null;
+async function ensureGifWorker() {
+  if (_gifWorkerUrl) return _gifWorkerUrl;
+  if (typeof GIF === 'undefined') throw new Error('gif.js 로드 실패 — 인터넷 연결 확인');
+  const code = await (await fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')).text();
+  _gifWorkerUrl = URL.createObjectURL(new Blob([code], { type: 'application/javascript' }));
+  return _gifWorkerUrl;
+}
+
+document.getElementById('export-gif-btn').addEventListener('click', async () => {
   if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
-  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=Math.min(window.devicePixelRatio||2,2);
-  const vc=document.createElement('canvas'); vc.width=w*dpr; vc.height=h*dpr;
-  const ctx=vc.getContext('2d');
-  const mimeType='video/webm';
-  const chunks=[];
-  const stream=vc.captureStream(15);
-  const recorder=new MediaRecorder(stream,{mimeType});
-  recorder.ondataavailable=e=>chunks.push(e.data);
-  recorder.onstop=()=>{
-    const blob=new Blob(chunks,{type:mimeType});
-    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.webm`,href:URL.createObjectURL(blob)}).click();
-    gifRecording=false;
-  };
-  let gifRecording=true;
-  const btn=document.getElementById('export-gif-btn');
-  btn.textContent='Recording… 3s'; btn.style.opacity='.5';
-  function gifFrame(){
-    if(!gifRecording) return;
-    const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
-    const bgRect=S.transparentBg?'':`<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
-    const svgStr=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
-    const url=URL.createObjectURL(new Blob([svgStr],{type:'image/svg+xml'}));
-    const img=new Image();
-    img.onload=()=>{
-      ctx.clearRect(0,0,vc.width,vc.height);
-      if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,vc.width,vc.height);}
-      ctx.save(); ctx.scale(dpr,dpr); ctx.drawImage(img,0,0); ctx.restore();
-      URL.revokeObjectURL(url);
-      requestAnimationFrame(gifFrame);
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url); requestAnimationFrame(gifFrame);};
-    img.src=url;
+  const btn = document.getElementById('export-gif-btn');
+  const dur = exportDuration;
+  const fps = 30;
+  const frameDelay = Math.round(1000 / fps);
+  const total = Math.round(dur * fps);
+
+  btn.textContent = '…'; btn.style.opacity = '.5';
+  let resumeAfter = false;
+  try {
+    const workerUrl = await ensureGifWorker();
+    const { W, H } = getExportSize();
+    const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
+
+    // Pause live animation so renderMotionFrame controls timing deterministically
+    resumeAfter = !!animFrame;
+    if (resumeAfter) stopMotion();
+
+    const gif = new GIF({ workerScript: workerUrl, workers: 4, quality: 5, width: W, height: H, dither: false });
+    gif.on('progress', pct => showProgress('Encoding GIF…', 0.5 + pct * 0.5));
+    gif.on('finished', blob => {
+      download(URL.createObjectURL(blob), `sticky_${Date.now()}.gif`);
+      hideProgress();
+      btn.textContent = 'GIF'; btn.style.opacity = '';
+      if (resumeAfter) startMotion();
+    });
+
+    showProgress('Rendering frames…', 0);
+    const work = document.createElement('canvas');
+    for (let i = 0; i < total; i++) {
+      renderMotionFrame(i / fps, 1);
+      void stickyText.offsetWidth;
+      await rasterizeFrameToCanvas(W, H, fontCSS, work);
+      gif.addFrame(work, { delay: frameDelay, copy: true });
+      const p = (i + 1) / total * 0.5;
+      setProgress(p);
+      btn.textContent = `${i + 1}/${total}`;
+      // Yield so progress updates render
+      if (i % 4 === 3) await new Promise(r => setTimeout(r, 0));
+    }
+    btn.textContent = 'Encoding…';
+    showProgress('Encoding GIF…', 0.5);
+    gif.render();
+
+  } catch(e) {
+    console.error(e);
+    alert(e.message || 'GIF Export 실패');
+    btn.textContent = 'GIF'; btn.style.opacity = '';
+    hideProgress();
+    if (resumeAfter) startMotion();
   }
-  recorder.start();
-  gifFrame();
-  setTimeout(()=>{
-    recorder.stop();
-    btn.textContent='Export GIF (motion)'; btn.style.opacity='';
-  }, 3000);
 });
 
-// ── Export MP4 (WebM) ──────────────────────────────
-document.getElementById('export-mp4-btn').addEventListener('click', () => {
+// ── Export MP4 ─────────────────────────────────────
+document.getElementById('export-mp4-btn').addEventListener('click', async () => {
   if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
-  const w=canvasWrap.clientWidth, h=canvasWrap.clientHeight, dpr=Math.min(window.devicePixelRatio||2,2);
-  const vc=document.createElement('canvas'); vc.width=w*dpr; vc.height=h*dpr;
-  const ctx=vc.getContext('2d');
-  const mimeType = MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4'
-    : MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
-  const ext = mimeType.startsWith('video/mp4') ? 'mp4' : 'webm';
-  const chunks=[];
-  const stream=vc.captureStream(30);
-  const recorder=new MediaRecorder(stream,{mimeType:mimeType.split(';')[0]});
-  recorder.ondataavailable=e=>chunks.push(e.data);
-  recorder.onstop=()=>{
-    const blob=new Blob(chunks,{type:mimeType.split(';')[0]});
-    Object.assign(document.createElement('a'),{download:`sticky_${Date.now()}.${ext}`,href:URL.createObjectURL(blob)}).click();
-    recording=false;
-  };
+  const btn = document.getElementById('export-mp4-btn');
+  const dur = exportDuration;
+  const fps = 60;
+  const total = Math.round(dur * fps);
+  btn.textContent = '…'; btn.style.opacity = '.5';
+  let resumeAfter = false;
+  try {
+    const mp4Mime = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4']
+      .find(t => MediaRecorder.isTypeSupported(t));
+    const mimeType = mp4Mime || 'video/webm;codecs=vp9';
+    const ext = mp4Mime ? 'mp4' : 'webm';
 
-  let recording=true;
-  const btn=document.getElementById('export-mp4-btn');
-  btn.textContent='Recording… 5s'; btn.style.opacity='.5';
+    const { W, H } = getExportSize();
+    const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
 
-  function renderFrame(){
-    if(!recording) return;
-    const inner=document.getElementById('canvas-content').outerHTML.replace(/&/g,'&amp;');
-    const bgRect=S.transparentBg?'':`<rect width="${w}" height="${h}" fill="${S.bgColor}"/>`;
-    const svgStr=`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">${bgRect}<foreignObject width="${w}" height="${h}"><html xmlns="http://www.w3.org/1999/xhtml"><body style="margin:0">${inner}</body></html></foreignObject></svg>`;
-    const url=URL.createObjectURL(new Blob([svgStr],{type:'image/svg+xml'}));
-    const img=new Image();
-    img.onload=()=>{
-      ctx.clearRect(0,0,vc.width,vc.height);
-      if(!S.transparentBg){ctx.fillStyle=S.bgColor;ctx.fillRect(0,0,vc.width,vc.height);}
-      ctx.save(); ctx.scale(dpr,dpr); ctx.drawImage(img,0,0); ctx.restore();
-      URL.revokeObjectURL(url);
-      requestAnimationFrame(renderFrame);
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url); requestAnimationFrame(renderFrame);};
-    img.src=url;
-  }
+    resumeAfter = !!animFrame;
+    if (resumeAfter) stopMotion();
 
-  recorder.start();
-  renderFrame();
-  setTimeout(()=>{
+    showProgress('Rendering MP4…', 0);
+
+    // Pre-render every frame to bitmaps so playback timing isn't bottlenecked by SVG decode.
+    const frames = [];
+    const work = document.createElement('canvas');
+    work.width = W; work.height = H;
+    for (let i = 0; i < total; i++) {
+      renderMotionFrame(i / fps, 1);
+      void stickyText.offsetWidth;
+      await rasterizeFrameToCanvas(W, H, fontCSS, work);
+      const bmp = await createImageBitmap(work);
+      frames.push(bmp);
+      setProgress((i + 1) / total * 0.7);
+      btn.textContent = `${i + 1}/${total}`;
+      if (i % 4 === 3) await new Promise(r => setTimeout(r, 0));
+    }
+
+    // Now play frames into the recorded canvas at exact fps.
+    const out = document.createElement('canvas');
+    out.width = W; out.height = H;
+    const oCtx = out.getContext('2d', { colorSpace: 'srgb' });
+    const stream = out.captureStream(fps);
+    const chunks = [];
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 });
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    const recDone = new Promise(res => { recorder.onstop = res; });
+
+    recorder.start();
+    btn.textContent = 'Encoding…';
+    const start = performance.now();
+    for (let i = 0; i < total; i++) {
+      const target = start + (i * 1000) / fps;
+      while (performance.now() < target) {
+        await new Promise(r => requestAnimationFrame(r));
+      }
+      oCtx.clearRect(0, 0, W, H);
+      oCtx.drawImage(frames[i], 0, 0);
+      setProgress(0.7 + (i + 1) / total * 0.3);
+    }
+    // Hold final frame briefly so recorder flushes it
+    await new Promise(r => setTimeout(r, 1000 / fps + 50));
     recorder.stop();
-    btn.textContent='Export MP4 (motion)'; btn.style.opacity='';
-  }, 5000);
+    await recDone;
+
+    frames.forEach(b => b.close && b.close());
+    const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
+    download(URL.createObjectURL(blob), `sticky_${Date.now()}.${ext}`);
+    hideProgress();
+    btn.textContent = 'MP4'; btn.style.opacity = '';
+    if (resumeAfter) startMotion();
+
+  } catch(e) {
+    console.error(e);
+    alert(e.message || 'MP4 Export 실패');
+    btn.textContent = 'MP4'; btn.style.opacity = '';
+    hideProgress();
+    if (resumeAfter) startMotion();
+  }
+});
+
+// ── Arch + Perspective bindings ────────────────────
+{
+  const el = document.getElementById('arch-amount');
+  const vi = document.getElementById('arch-amount-val');
+  el.addEventListener('input', () => { S.archAmount = parseFloat(el.value); if(vi) vi.value = fmtVal(el.value); applyShape(); });
+  if (vi) {
+    vi.addEventListener('change', () => { let v=parseFloat(vi.value); if(isNaN(v)) return; v=Math.min(1,Math.max(-1,v)); el.value=v; vi.value=fmtVal(v); S.archAmount=v; applyShape(); });
+    vi.addEventListener('keydown', e => { if(e.key==='Enter'){vi.dispatchEvent(new Event('change')); vi.blur();} });
+  }
+}
+
+document.getElementById('persp-dir-grid').addEventListener('click', e => {
+  const btn = e.target.closest('[data-pdir]'); if (!btn) return;
+  document.querySelectorAll('#persp-dir-grid .stroke-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  S.perspDir = btn.dataset.pdir;
+  if (S.perspAmount > 0) applyShape();
+});
+
+{
+  const el = document.getElementById('persp-amount');
+  const vi = document.getElementById('persp-amount-val');
+  el.addEventListener('input', () => { S.perspAmount = parseFloat(el.value); if(vi) vi.value = fmtVal(el.value); applyShape(); });
+  if (vi) {
+    vi.addEventListener('change', () => { let v=parseFloat(vi.value); if(isNaN(v)) return; v=Math.min(1,Math.max(0,v)); el.value=v; vi.value=fmtVal(v); S.perspAmount=v; applyShape(); });
+    vi.addEventListener('keydown', e => { if(e.key==='Enter'){vi.dispatchEvent(new Event('change')); vi.blur();} });
+  }
+}
+
+{
+  const el = document.getElementById('lens-amount');
+  const vi = document.getElementById('lens-amount-val');
+  el.addEventListener('input', () => { S.lensAmount = parseFloat(el.value); if(vi) vi.value = fmtVal(el.value); applyShape(); });
+  if (vi) {
+    vi.addEventListener('change', () => { let v=parseFloat(vi.value); if(isNaN(v)) return; v=Math.min(2,Math.max(0,v)); el.value=v; vi.value=fmtVal(v); S.lensAmount=v; applyShape(); });
+    vi.addEventListener('keydown', e => { if(e.key==='Enter'){vi.dispatchEvent(new Event('change')); vi.blur();} });
+  }
+}
+
+let _prevKerning = S.kerning;
+
+function _animKerning(target) {
+  const start = S.kerning, t0 = performance.now();
+  (function step(now) {
+    const p = Math.min(1, (now - t0) / 280);
+    S.kerning = start + (target - start) * easeOutCubic(p);
+    setSlider('kerning', S.kerning);
+    applyAll();
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+document.getElementById('arch-toggle').addEventListener('change', e => {
+  const on = e.target.checked;
+  S.archOn = on;
+  document.getElementById('arch-bend-row').classList.toggle('open', on);
+  if (on) {
+    _prevKerning = S.kerning;
+    _animKerning(-0.05);
+  } else {
+    _animKerning(_prevKerning);
+  }
+  scheduleShape();
+});
+
+document.getElementById('reset-arch').addEventListener('click', () => {
+  if (S.archOn) _animKerning(_prevKerning);
+  S.archOn = false;
+  S.archAmount = 0.3;
+  document.getElementById('arch-toggle').checked = false;
+  document.getElementById('arch-bend-row').classList.remove('open');
+  setSlider('arch-amount', 0.3);
+  applyAll();
+});
+
+document.getElementById('reset-fisheye').addEventListener('click', () => {
+  S.lensAmount = 0;
+  setSlider('lens-amount', 0);
+  applyShape();
+});
+
+document.getElementById('reset-persp').addEventListener('click', () => {
+  S.perspDir = 'left'; S.perspAmount = 0;
+  document.querySelectorAll('#persp-dir-grid .stroke-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('[data-pdir="left"]').classList.add('on');
+  setSlider('persp-amount', 0);
+  applyShape();
+});
+
+// ── Alignment ──────────────────────────────────────
+document.getElementById('align-grid').addEventListener('click', e => {
+  const btn = e.target.closest('[data-align]'); if (!btn) return;
+  document.querySelectorAll('#align-grid .stroke-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  S.textAlign = btn.dataset.align;
+  applyAll();
+  scheduleShape();
 });
 
 // ── Reset handlers ─────────────────────────────────
@@ -1857,9 +2418,12 @@ document.getElementById('reset-typo').addEventListener('click', () => {
   const startScales     = charScales.map(s => ({...s}));
   const t0 = performance.now();
 
-  // weight snaps immediately (discrete value)
+  // weight + alignment snap immediately (discrete values)
   S.fontWeight = 700;
   document.getElementById('weight-select').value = '700';
+  S.textAlign = 'center';
+  document.querySelectorAll('#align-grid .stroke-btn').forEach(b => b.classList.remove('on'));
+  document.querySelector('[data-align="center"]').classList.add('on');
 
   (function step(now) {
     const p = Math.min(1, (now - t0) / RESET_DUR);
@@ -1905,10 +2469,10 @@ document.getElementById('reset-color').addEventListener('click', () => {
   S.textColor='#242424'; S.bgColor='#f0f0f0';
   document.getElementById('text-color').value='#242424';
   document.getElementById('text-color-fill').style.background='#242424';
-  document.getElementById('text-color-hex').textContent='#242424';
+  document.getElementById('text-color-hex').value='#242424';
   document.getElementById('bg-color').value='#f0f0f0';
   document.getElementById('bg-color-fill').style.background='#f0f0f0';
-  document.getElementById('bg-color-hex').textContent='#f0f0f0';
+  document.getElementById('bg-color-hex').value='#f0f0f0';
   applyAll();
 });
 
@@ -1924,7 +2488,7 @@ document.getElementById('reset-stroke').addEventListener('click', () => {
   // Sync stroke color picker
   document.getElementById('stroke-color').value          = '#242424';
   document.getElementById('stroke-color-fill').style.background = '#242424';
-  document.getElementById('stroke-color-hex').textContent = '#242424';
+  document.getElementById('stroke-color-hex').value = '#242424';
   syncStrokeUI();
   updateFilter();
 });
@@ -1941,14 +2505,14 @@ document.getElementById('reset-distress').addEventListener('click', () => {
 document.getElementById('reset-motion').addEventListener('click', () => {
   S.motionType='breathe'; S.motionSpeed=0.55; S.motionIntensity=0.3;
   S.fsThresh=22; S.fsCutoff=-14; S.feThresh=36; S.feCutoff=-6;
-  S.bubbleFloat=0.5; S.bumpBridge=0.4; S.bumpDir='random';
-  setSlider('motion-speed',0.55); setSlider('motion-intensity',0.3);
+  S.bubbleFloat=0.5; S.bumpBridge=0.4; S.bumpDir='ltr';
+  setSlider('motion-speed',1); setSlider('motion-intensity',0.5);
   setSlider('fs-thresh',22); setSlider('fs-cutoff',-14);
   setSlider('fe-thresh',36); setSlider('fe-cutoff',-6);
   setSlider('bubble-float',0.5); setSlider('bump-bridge',0.4);
   document.querySelectorAll('#bump-dir-grid .pill').forEach(b => b.classList.remove('on'));
-  document.querySelector('[data-bdir="random"]')?.classList.add('on');
-  S.bumpDir = 'random';
+  document.querySelector('[data-bdir="ltr"]')?.classList.add('on');
+  S.bumpDir = 'ltr';
   document.querySelectorAll('#motion-type-grid .pill').forEach(p => p.classList.remove('on'));
   document.querySelector('[data-mtype="breathe"]')?.classList.add('on');
   syncMotionTypeUI('breathe');
@@ -2022,16 +2586,43 @@ function hpStartAnim(type) {
 
     } else if (type === 'flex') {
       hpText.style.transform = '';
-      const beatDur  = 0.55/spd, beatIdx = Math.floor(rawT/beatDur);
-      const beatProg = (rawT%beatDur)/beatDur;
-      const easeT = beatProg < 0.25 ? 1-Math.pow(1-beatProg/0.25,3) : 1;
-      const spread = I * 0.8;
+      const spread = I * 1.7;
+      const hpN    = hpCharEls.length || 1;
+      const beatDur = 0.55 / spd;
+      const beatIdx = Math.floor(rawT / beatDur);
+      const bp      = (rawT % beatDur) / beatDur;
+      const eT = Math.pow(bp, 3);
+      const oblSkew = I * 18;
+      function hpActiveSet(bIdx) {
+        if (hpN < 2) return new Set([0]);
+        let best = -Infinity, bestI = 0;
+        for (let i = 0; i < hpN - 1; i++) {
+          const s = hpHash(bIdx*137.1+i*53.7) + hpHash(bIdx*251.3+(i+1)*97.1);
+          if (s > best) { best = s; bestI = i; }
+        }
+        return new Set([bestI, bestI+1]);
+      }
+      function hpBuildT(bIdx, active) {
+        const t = new Map();
+        for (const i of active) {
+          const v = hpHash(bIdx*127.1+i*311.7);
+          t.set(i, 1 + (0.35 + v*0.65) * spread);
+        }
+        return t;
+      }
+      function hpGetSx(i, active, targets) {
+        if (active.has(i)) return targets.get(i);
+        const lEx = (targets.get(i-1)??1)-1, rEx = (targets.get(i+1)??1)-1;
+        return 1 + (lEx+rEx)*0.15;
+      }
+      const hpCur = hpActiveSet(beatIdx), hpPrv = hpActiveSet(beatIdx-1);
+      const hpCurT = hpBuildT(beatIdx, hpCur), hpPrvT = hpBuildT(beatIdx-1, hpPrv);
+      const [hpA,hpB]=[...hpCur], hpObl = (hpCurT.get(hpA)??1)>=(hpCurT.get(hpB)??1)?hpA:hpB;
+      const [hpPA,hpPB]=[...hpPrv], hpPrvObl = (hpPrvT.get(hpPA)??1)>=(hpPrvT.get(hpPB)??1)?hpPA:hpPB;
       hpCharEls.forEach((el, i) => {
-        const tSx = Math.max(0.2,1+(hpHash(beatIdx*127.1+i*311.7)-0.5)*2*spread);
-        const tSk = (hpHash(beatIdx*269.5+i*183.3)-0.5)*2*I*24;
-        const pSx = Math.max(0.2,1+(hpHash((beatIdx-1)*127.1+i*311.7)-0.5)*2*spread);
-        const pSk = (hpHash((beatIdx-1)*269.5+i*183.3)-0.5)*2*I*24;
-        el.style.transform = `scaleX(${pSx+(tSx-pSx)*easeT}) skewX(${pSk+(tSk-pSk)*easeT}deg)`;
+        const tSx = hpGetSx(i,hpCur,hpCurT), pSx = hpGetSx(i,hpPrv,hpPrvT);
+        const tSk = (i===hpObl) ? oblSkew : 0, pSk = (i===hpPrvObl) ? oblSkew : 0;
+        el.style.transform = `scaleX(${(pSx+(tSx-pSx)*eT).toFixed(4)}) skewX(${(pSk+(tSk-pSk)*eT).toFixed(2)}deg)`;
       });
 
     } else if (type === 'melt') {
@@ -2057,7 +2648,7 @@ function hpStartAnim(type) {
         el.style.transform = `translateY(${-hop * I * 22}px)`;
       });
 
-    } else if (type === 'pull') {
+    } else if (type === 'stretch') {
       const cycle = (phi * 0.42) % (Math.PI * 2);
       const tC = cycle / (Math.PI * 2);
       const P1=0.24, P2=0.58, P3=0.76;
