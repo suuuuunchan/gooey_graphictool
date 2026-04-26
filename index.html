@@ -2061,7 +2061,10 @@ function escapeXML(s) {
   return s.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&apos;'}[c]));
 }
 
-function buildFrameSVG(W, H, fontCSS) {
+// Wcss/Hcss: CSS-pixel coordinate space (positions, font sizes, transforms)
+// Wp/Hp: physical pixel dimensions (SVG width/height attrs → render resolution)
+function buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS) {
+  const W = Wcss, H = Hcss;
   const filterDefs = document.querySelector('#svg-filters defs').innerHTML;
 
   const stickyCS = getComputedStyle(stickyText);
@@ -2142,7 +2145,8 @@ function buildFrameSVG(W, H, fontCSS) {
 
   const bg = S.transparentBg ? '' : `<rect width="${W}" height="${H}" fill="${S.bgColor}"/>`;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+  // width/height = physical pixels → high-res render; viewBox = CSS-px coords
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${Wp}" height="${Hp}" viewBox="0 0 ${W} ${H}">
 <defs>
 <style><![CDATA[${fontCSS}]]></style>
 ${filterDefs}
@@ -2154,8 +2158,12 @@ ${parts.join('\n')}
 </svg>`;
 }
 
-async function rasterizeFrameToCanvas(W, H, fontCSS, outCanvas) {
-  const svg = buildFrameSVG(W, H, fontCSS);
+// buildFrameSVG uses CSS-px coordinate system (Wcss × Hcss) but renders at
+// physical pixel resolution (Wcss*dpr × Hcss*dpr) via SVG width/height vs viewBox.
+async function rasterizeFrameToCanvas(Wcss, Hcss, dpr, fontCSS, outCanvas) {
+  const Wp = Math.round(Wcss * dpr);
+  const Hp = Math.round(Hcss * dpr);
+  const svg = buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS);
   const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   try {
@@ -2164,10 +2172,10 @@ async function rasterizeFrameToCanvas(W, H, fontCSS, outCanvas) {
     img.src = url;
     await img.decode();
     const cv = outCanvas || document.createElement('canvas');
-    cv.width = W; cv.height = H;
+    cv.width = Wp; cv.height = Hp;
     const cx = cv.getContext('2d', { colorSpace: 'srgb' });
-    cx.clearRect(0, 0, W, H);
-    cx.drawImage(img, 0, 0, W, H);
+    cx.clearRect(0, 0, Wp, Hp);
+    cx.drawImage(img, 0, 0, Wp, Hp);
     return cv;
   } finally {
     URL.revokeObjectURL(url);
@@ -2176,7 +2184,8 @@ async function rasterizeFrameToCanvas(W, H, fontCSS, outCanvas) {
 
 function getExportSize() {
   const r = canvasWrap.getBoundingClientRect();
-  return { W: Math.round(r.width), H: Math.round(r.height) };
+  const dpr = window.devicePixelRatio || 1;
+  return { W: Math.round(r.width), H: Math.round(r.height), dpr };
 }
 
 // ── Export PNG ─────────────────────────────────────
@@ -2184,11 +2193,10 @@ document.getElementById('export-png-btn').addEventListener('click', async () => 
   const btn = document.getElementById('export-png-btn');
   btn.textContent = '…'; btn.style.opacity = '.5';
   try {
-    const { W, H } = getExportSize();
+    const { W, H, dpr } = getExportSize();
     const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
-    // ensure layout is fresh
     void stickyText.offsetWidth;
-    const cv = await rasterizeFrameToCanvas(W, H, fontCSS);
+    const cv = await rasterizeFrameToCanvas(W, H, dpr, fontCSS);
     download(cv.toDataURL('image/png'), `sticky_${Date.now()}.png`);
   } catch(e) {
     console.error(e);
@@ -2219,14 +2227,14 @@ document.getElementById('export-gif-btn').addEventListener('click', async () => 
   let resumeAfter = false;
   try {
     const workerUrl = await ensureGifWorker();
-    const { W, H } = getExportSize();
+    const { W, H, dpr } = getExportSize();
+    const Wp = Math.round(W * dpr), Hp = Math.round(H * dpr);
     const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
 
-    // Pause live animation so renderMotionFrame controls timing deterministically
     resumeAfter = !!animFrame;
     if (resumeAfter) stopMotion();
 
-    const gif = new GIF({ workerScript: workerUrl, workers: 4, quality: 5, width: W, height: H, dither: false });
+    const gif = new GIF({ workerScript: workerUrl, workers: 4, quality: 5, width: Wp, height: Hp, dither: false });
     gif.on('progress', pct => showProgress('Encoding GIF…', 0.5 + pct * 0.5));
     gif.on('finished', blob => {
       download(URL.createObjectURL(blob), `sticky_${Date.now()}.gif`);
@@ -2240,7 +2248,7 @@ document.getElementById('export-gif-btn').addEventListener('click', async () => 
     for (let i = 0; i < total; i++) {
       renderMotionFrame(i / fps, 1);
       void stickyText.offsetWidth;
-      await rasterizeFrameToCanvas(W, H, fontCSS, work);
+      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
       gif.addFrame(work, { delay: frameDelay, copy: true });
       const p = (i + 1) / total * 0.5;
       setProgress(p);
@@ -2276,7 +2284,8 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
     const mimeType = mp4Mime || 'video/webm;codecs=vp9';
     const ext = mp4Mime ? 'mp4' : 'webm';
 
-    const { W, H } = getExportSize();
+    const { W, H, dpr } = getExportSize();
+    const Wp = Math.round(W * dpr), Hp = Math.round(H * dpr);
     const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
 
     resumeAfter = !!animFrame;
@@ -2287,11 +2296,11 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
     // Pre-render every frame to bitmaps so playback timing isn't bottlenecked by SVG decode.
     const frames = [];
     const work = document.createElement('canvas');
-    work.width = W; work.height = H;
+    work.width = Wp; work.height = Hp;
     for (let i = 0; i < total; i++) {
       renderMotionFrame(i / fps, 1);
       void stickyText.offsetWidth;
-      await rasterizeFrameToCanvas(W, H, fontCSS, work);
+      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
       const bmp = await createImageBitmap(work);
       frames.push(bmp);
       setProgress((i + 1) / total * 0.7);
@@ -2301,7 +2310,7 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
 
     // Now play frames into the recorded canvas at exact fps.
     const out = document.createElement('canvas');
-    out.width = W; out.height = H;
+    out.width = Wp; out.height = Hp;
     const oCtx = out.getContext('2d', { colorSpace: 'srgb' });
     const stream = out.captureStream(fps);
     const chunks = [];
@@ -2317,7 +2326,7 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
       while (performance.now() < target) {
         await new Promise(r => requestAnimationFrame(r));
       }
-      oCtx.clearRect(0, 0, W, H);
+      oCtx.clearRect(0, 0, Wp, Hp);
       oCtx.drawImage(frames[i], 0, 0);
       setProgress(0.7 + (i + 1) / total * 0.3);
     }
