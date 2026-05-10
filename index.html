@@ -154,6 +154,7 @@
   .btn-primary:hover { opacity:.7; }
   .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:var(--r); padding:8px 0; font-family:'Delight',system-ui; font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; width:100%; transition:all .15s; }
   .btn-ghost:hover { border-color:var(--bhi); color:var(--text); }
+  .btn-ghost.on { background:var(--accent); border-color:var(--accent); color:#fff; }
 
   /* ── Preview ── */
   #preview-area { flex:1; display:flex; align-items:center; justify-content:center; background:var(--bg); position:relative; overflow:hidden; }
@@ -634,17 +635,45 @@
             <div class="toggle-thumb"></div>
           </label>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px">
-          <button class="btn-ghost" id="export-png-btn" style="letter-spacing:.18em">PNG</button>
-          <button class="btn-ghost" id="export-gif-btn" style="letter-spacing:.18em">GIF</button>
-          <button class="btn-ghost" id="export-mp4-btn" style="letter-spacing:.18em">MP4</button>
+        <!-- Format tabs (click to switch options panel below) -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px" id="export-tabs">
+          <button class="btn-ghost on" data-fmt="png" style="letter-spacing:.18em">PNG</button>
+          <button class="btn-ghost"    data-fmt="gif" style="letter-spacing:.18em">GIF</button>
+          <button class="btn-ghost"    data-fmt="mp4" style="letter-spacing:.18em">MP4</button>
         </div>
-        <div class="control-row" style="margin-bottom:0">
-          <span class="lbl">Duration</span>
-          <input type="range" id="export-dur-slider" min="1" max="10" value="3" step="1" style="flex:1;min-width:0">
-          <input type="number" class="val-input" id="export-dur-val" min="1" max="10" step="1" value="3">
-          <span style="font-size:9px;color:var(--muted);flex-shrink:0">s</span>
+
+        <!-- PNG options -->
+        <div class="export-pane" data-pane="png">
+          <div class="control-row" style="margin-bottom:0">
+            <span class="lbl">Scale</span>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex:1">
+              <button class="pill"    data-scale="1">1×</button>
+              <button class="pill"    data-scale="2">2×</button>
+              <button class="pill on" data-scale="3">3×</button>
+              <button class="pill"    data-scale="4">4×</button>
+            </div>
+          </div>
         </div>
+
+        <!-- GIF options (none — loops based on motion cycle) -->
+        <div class="export-pane" data-pane="gif" style="display:none">
+          <div style="font-size:9px;color:var(--muted);text-align:center;padding:6px 0;letter-spacing:.1em" id="gif-loop-info">
+            Auto loop: motion cycle
+          </div>
+        </div>
+
+        <!-- MP4 options -->
+        <div class="export-pane" data-pane="mp4" style="display:none">
+          <div class="control-row" style="margin-bottom:0">
+            <span class="lbl">Duration</span>
+            <input type="range" id="export-dur-slider" min="1" max="10" value="3" step="1" style="flex:1;min-width:0">
+            <input type="number" class="val-input" id="export-dur-val" min="1" max="10" step="1" value="3">
+            <span style="font-size:9px;color:var(--muted);flex-shrink:0">s</span>
+          </div>
+        </div>
+
+        <!-- Single Export action -->
+        <button class="btn-primary" id="export-do-btn" style="margin-top:14px">Export</button>
       </div>
     </div>
   </div>
@@ -1391,7 +1420,12 @@ function applyFrameFilter(t) {
 
 // Pure renderer — drives DOM to a specific animation time. Used by the live
 // rAF loop AND by the offline export pipeline (no real-time wait needed).
-function renderMotionFrame(rawT, easeInP = 1) {
+//
+// exportLoopBeats > 0 (only used by GIF export): activates flex's periodic
+// mode by wrapping beatIdx modulo this many beats. Effect: the random hash
+// sequence becomes a clean N-beat cycle that loops exactly. Live preview
+// passes 0 → keeps original organic-feeling random-beat behavior.
+function renderMotionFrame(rawT, easeInP = 1, exportLoopBeats = 0) {
     const t    = rawT * S.motionSpeed;
     const phi  = t * Math.PI * 2;
     const I    = S.motionIntensity * easeOutCubic(easeInP);
@@ -1466,21 +1500,36 @@ function renderMotionFrame(rawT, easeInP = 1) {
 
     } else if (S.motionType === 'wave') {
       const p = Math.sin(phi * 0.5);
+      // Filter pulse synced to wave transform (both at freq 0.5). Previously
+      // used the outer `lerpT` (freq 0.7) which made wave a dual-frequency
+      // motion with a true period of 10s — preventing seamless GIF loops at
+      // any reasonable duration. Aligning to 0.5 yields a clean 2s period.
+      const wlerp = (p + 1) / 2;
       mot.sx = 1 + p*I*0.32; mot.sy=1; mot.x=p*I*6; mot.y=0; mot.r=0; mot.s=1;
       stickyText.style.letterSpacing = (S.kerning + p*I*0.09) + 'em';
-      applyFrameFilter(lerpT); compositeTransform();
+      applyFrameFilter(wlerp); compositeTransform();
 
     } else if (S.motionType === 'bubble') {
       mot.sx=1; mot.sy=1; mot.x=0; mot.y=0; mot.r=0; mot.s=1;
       stickyText.style.letterSpacing = S.kerning + 'em';
       const FL = S.bubbleFloat;
+      // ── PERIODIC by construction ────────────────────────────────────────
+      // Every per-char frequency is an INTEGER multiple of base = 1/T_bubble.
+      // T_bubble = 5s → base = 0.2 Hz. sin(phi·k) where k = N·base completes
+      // exactly N cycles in T seconds → returns to identical value at t=T.
+      // No cross-fade ever needed — the GIF loop is mathematically zero-error.
+      // Diversity: r1 picks from 6 distinct multiples, r2 from 7, fq from 2,
+      // plus three independent bounded phase offsets per char.
       charEls.forEach((el, i) => {
-        const r1 = 0.6 + (i*0.37%1)*1.1;
-        const r2 = 0.4 + (i*0.61%1)*1.3;
-        const fq = 0.15 + (i*0.19%1)*0.18;
-        const osc1   = Math.sin(phi*r1 + i*1.1);
-        const osc2   = Math.sin(phi*r2 + i*2.3);
-        const floatY = Math.sin(phi*fq + i*0.9) * FL * 36;
+        const r1 = (3 + (i * 7)  % 6) * 0.2;   // ∈ {0.6,0.8,1.0,1.2,1.4,1.6}
+        const r2 = (2 + (i * 11) % 7) * 0.2;   // ∈ {0.4,0.6,0.8,1.0,1.2,1.4,1.6}
+        const fq = (1 + i % 2)        * 0.2;   // ∈ {0.2, 0.4}
+        const ph1    = Math.sin(i * 2.4) * 0.5;
+        const ph2    = Math.sin(i * 1.7 + 1.1) * 0.5;
+        const phY    = Math.sin(i * 3.1 + 0.7) * 0.5;
+        const osc1   = Math.sin(phi*r1 + ph1);
+        const osc2   = Math.sin(phi*r2 + ph2);
+        const floatY = Math.sin(phi*fq + phY) * FL * 36;
         const sx   = 1 + osc1*I*0.55;
         const skew = osc2*I*22;
         const {x,y} = charOffsets[i];
@@ -1531,10 +1580,25 @@ function renderMotionFrame(rawT, easeInP = 1) {
         const rEx = (targets.get(i+1) ?? 1) - 1;
         return 1 + (lEx + rEx) * 0.15;
       }
-      const curActive = activeSet(beatIdx);
-      const prvActive = activeSet(beatIdx - 1);
-      const curT = buildTargets(beatIdx, curActive);
-      const prvT = buildTargets(beatIdx - 1, prvActive);
+      // ── DUAL MODE ──────────────────────────────────────────────────────
+      // Live preview (exportLoopBeats=0): use raw beatIdx → infinite organic
+      //   hash-random beats, never repeats, feels alive.
+      // Export (exportLoopBeats=N): wrap beatIdx mod N → the rendered loop
+      //   visits exactly N beats in a cycle (e.g. 0,1,2,3,0,1,2,3,...) and
+      //   the seam at frame[total]=frame[0] is just another normal beat
+      //   transition (last frame settles into beat N-1; first frame starts
+      //   from beat N-1 lerping toward beat 0). Position is continuous AND
+      //   the velocity profile matches every other beat boundary in the
+      //   loop — no visible kink. ZERO blending needed.
+      const flexWrap = exportLoopBeats > 0
+        ? (b => ((b % exportLoopBeats) + exportLoopBeats) % exportLoopBeats)
+        : (b => b);
+      const curIdx = flexWrap(beatIdx);
+      const prvIdx = flexWrap(beatIdx - 1);
+      const curActive = activeSet(curIdx);
+      const prvActive = activeSet(prvIdx);
+      const curT = buildTargets(curIdx, curActive);
+      const prvT = buildTargets(prvIdx, prvActive);
 
       // Oblique on the wider of the two active chars (reuse already-built targets)
       const [oA, oB]   = [...curActive];
@@ -1567,10 +1631,14 @@ function renderMotionFrame(rawT, easeInP = 1) {
       // At the low point it spreads wider (mass conservation) and the
       // filter blurs more to merge neighbouring drips into gooey bridges.
       charEls.forEach((el, i) => {
-        const rate   = 0.22 + (i * 0.31 % 1) * 0.28;          // 0.22–0.50 unique per char
-        const phase  = i * 1.57 + i * i * 0.09;
-        const drip   = Math.sin(phi * rate + phase);            // –1 → 1
-        const drip01 = (drip + 1) / 2;                         // 0 → 1
+        // ── PERIODIC by construction ───────────────────────────────────
+        // T_melt = 5s, base = 0.2 Hz. rate is one of {0.2, 0.4, 0.6} → each
+        // is N·base → −cos(phi·rate + i·0.4) returns to identical value at
+        // t=T. Loop is mathematically exact, no cross-fade needed.
+        // 3 distinct rates × per-char phase offset i·0.4 → drip variety.
+        const rate   = (1 + (i * 5) % 3) * 0.2;                 // ∈ {0.2, 0.4, 0.6}
+        const drip   = -Math.cos(phi * rate + i * 0.4);
+        const drip01 = (drip + 1) / 2;                          // 0 → 1
 
         const dropY = drip01 * I * 45;                          // max 45 px droop
         const sx    = 1 + drip01 * I * 0.40;                   // widens at bottom
@@ -1585,7 +1653,14 @@ function renderMotionFrame(rawT, easeInP = 1) {
 
       // Slow global kerning pulse — chars drift toward each other,
       // triggering gooey bridges, then pull apart.
-      const kOsc = Math.sin(phi * 0.18);
+      // CRITICAL: frequency MUST be a multiple of 1/T_melt (= 0.2 Hz) so the
+      // kerning value at t=T equals t=0. Using 0.18 (the original "musical"
+      // value) breaks this — sin(2π·5·0.18) = sin(1.8π) ≈ −0.588 ≠ 0, which
+      // causes letterSpacing to snap by ~0.04·I em at every loop wrap →
+      // every char shifts horizontally → ugly visible seam under the goo
+      // filter. 0.2 is sonically nearly identical (period 5s vs 5.56s) but
+      // mathematically locks: sin(2π·5·0.2) = sin(2π) = 0 exactly.
+      const kOsc = Math.sin(phi * 0.2);
       stickyText.style.letterSpacing = (S.kerning + kOsc * I * 0.07) + 'em';
 
       // Filter stays active throughout; extra blur proportional to intensity.
@@ -2066,7 +2141,11 @@ function escapeXML(s) {
 
 // Wcss/Hcss: CSS-pixel coordinate space (positions, font sizes, transforms)
 // Wp/Hp: physical pixel dimensions (SVG width/height attrs → render resolution)
-function buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS) {
+// layoutSnap: pre-computed char layout positions (optional, export fast path).
+//   When provided, skips the expensive DOM clear → reflow → restore cycle.
+//   Only valid for motions that do NOT change letterSpacing per frame
+//   (breathe, bump, bubble, flex). For wave/melt/stretch, pass null.
+function buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS, layoutSnap) {
   const W = Wcss, H = Hcss;
   const filterDefs = document.querySelector('#svg-filters defs').innerHTML;
 
@@ -2083,7 +2162,7 @@ function buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS) {
   // Delight/LibreBaskerville: baseline ≈ leading/2 + 0.78 × fontSize
   const baselineOffset = (lineHeightPx - fontSizePx) / 2 + fontSizePx * 0.78;
 
-  // ── Read layer CSS transform BEFORE clearing anything ──────────────
+  // ── Read layer CSS transform (changes every frame — must be fresh) ─
   const layerTransformStr = getComputedStyle(textTransformLayer).transform;
   const M_layer_raw = (layerTransformStr && layerTransformStr !== 'none')
     ? new DOMMatrix(layerTransformStr) : new DOMMatrix([1,0,0,1,0,0]);
@@ -2093,33 +2172,36 @@ function buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS) {
     .multiply(M_layer_raw)
     .multiply(new DOMMatrix([1,0,0,1, -W/2, -H/2]));
 
-  // ── Snapshot per-char transforms BEFORE clearing ──────────────────
+  // ── Snapshot per-char transforms (change every frame — must be fresh) ─
   const savedCharTransforms = charEls.map(el => el.style.transform || '');
 
-  // ── Temporarily clear ALL transforms to read pure layout positions ─
+  // ── Layout positions ────────────────────────────────────────────────
   // CSS transforms don't affect layout, but getBoundingClientRect is unreliable
   // when ancestor transforms are active (flexbox centering offsets can be masked).
-  // Clearing transforms then measuring gives the true layout position.
-  const savedLayerTransform = textTransformLayer.style.transform;
-  textTransformLayer.style.transform = 'none';
-  charEls.forEach(el => { el.style.transform = ''; });
-  void stickyText.offsetWidth; // force synchronous layout
+  // The snapshot path avoids two forced synchronous layouts (±2ms each) per frame.
+  let layoutPos;
+  if (layoutSnap) {
+    // Fast path: positions pre-computed once before export loop
+    layoutPos = layoutSnap;
+  } else {
+    // Slow path: clear transforms → force layout → measure → restore
+    const savedLayerTransform = textTransformLayer.style.transform;
+    textTransformLayer.style.transform = 'none';
+    charEls.forEach(el => { el.style.transform = ''; });
+    void stickyText.offsetWidth; // force synchronous layout
 
-  const wrapRect = canvasWrap.getBoundingClientRect();
-  const layoutPos = charEls.map(el => {
-    const r = el.getBoundingClientRect();
-    return {
-      x: r.left - wrapRect.left,
-      y: r.top  - wrapRect.top,
-      w: el.offsetWidth,
-      h: el.offsetHeight,
-    };
-  });
+    const wrapRect = canvasWrap.getBoundingClientRect();
+    layoutPos = charEls.map(el => {
+      const r = el.getBoundingClientRect();
+      return { x: r.left - wrapRect.left, y: r.top - wrapRect.top,
+               w: el.offsetWidth, h: el.offsetHeight };
+    });
 
-  // ── Restore transforms (sync, no repaint before next frame) ───────
-  textTransformLayer.style.transform = savedLayerTransform;
-  charEls.forEach((el, i) => { el.style.transform = savedCharTransforms[i]; });
-  void stickyText.offsetWidth;
+    // Restore transforms (sync, no repaint before next frame)
+    textTransformLayer.style.transform = savedLayerTransform;
+    charEls.forEach((el, i) => { el.style.transform = savedCharTransforms[i]; });
+    void stickyText.offsetWidth;
+  }
 
   // ── Build per-char SVG elements using composed DOMMatrix ──────────
   // For char i at layout position (x,y,w,h) with its own CSS transform M_char
@@ -2163,10 +2245,15 @@ ${parts.join('\n')}
 
 // buildFrameSVG uses CSS-px coordinate system (Wcss × Hcss) but renders at
 // physical pixel resolution (Wcss*dpr × Hcss*dpr) via SVG width/height vs viewBox.
-async function rasterizeFrameToCanvas(Wcss, Hcss, dpr, fontCSS, outCanvas) {
+// layoutSnap: optional pre-computed char positions (see buildFrameSVG for details).
+//
+// NOTE: createImageBitmap(svgBlob) is NOT used here because Chrome rejects SVG
+// blobs that contain embedded data: URI @font-face sources in that decode path.
+// new Image() + img.decode() via a blob URL is the reliable cross-browser method.
+async function rasterizeFrameToCanvas(Wcss, Hcss, dpr, fontCSS, outCanvas, layoutSnap) {
   const Wp = Math.round(Wcss * dpr);
   const Hp = Math.round(Hcss * dpr);
-  const svg = buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS);
+  const svg = buildFrameSVG(Wcss, Hcss, Wp, Hp, fontCSS, layoutSnap);
   const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   try {
@@ -2192,21 +2279,64 @@ function getExportSize() {
 }
 
 // ── Export PNG ─────────────────────────────────────
-document.getElementById('export-png-btn').addEventListener('click', async () => {
-  const btn = document.getElementById('export-png-btn');
+// PNG pHYs chunk injection — embeds 300 DPI physical resolution metadata so
+// design/print apps (Photoshop, Illustrator, Word, Affinity) interpret the
+// image at 300 dpi instead of the default 72 dpi. Pixel data is unchanged;
+// only the declared physical size shrinks (e.g. a 3000-px-wide PNG becomes
+// 10 inches @ 300 dpi instead of 41.7 inches @ 72 dpi).
+const _PNG_CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function _pngCrc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = _PNG_CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+async function injectPng300Dpi(blob) {
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  // 8-byte PNG signature, then IHDR (8 hdr + 13 data + 4 crc = 25). Insert at 33.
+  if (buf.length < 33 || buf[0] !== 0x89 || buf[1] !== 0x50) return blob; // not PNG → bail
+  const PPU = 11811; // 300 dpi × (1 inch / 0.0254 m) ≈ 11811 pixels/meter
+  const chunk = new Uint8Array(4 + 4 + 9 + 4); // length + type + data + crc
+  const dv = new DataView(chunk.buffer);
+  dv.setUint32(0, 9);                        // data length
+  chunk.set([0x70, 0x48, 0x59, 0x73], 4);    // "pHYs"
+  dv.setUint32(8,  PPU);                     // ppu X
+  dv.setUint32(12, PPU);                     // ppu Y
+  chunk[16] = 1;                             // unit specifier: 1 = meter
+  dv.setUint32(17, _pngCrc32(chunk.subarray(4, 17))); // CRC over type+data
+  const out = new Uint8Array(buf.length + chunk.length);
+  out.set(buf.subarray(0, 33), 0);
+  out.set(chunk, 33);
+  out.set(buf.subarray(33), 33 + chunk.length);
+  return new Blob([out], { type: 'image/png' });
+}
+async function runPngExport(btn) {
   btn.textContent = '…'; btn.style.opacity = '.5';
   try {
-    const { W, H, dpr } = getExportSize();
+    const { W, H } = getExportSize();
     const fontCSS = await getEmbeddedFont(S.fontFamily, S.fontWeight);
-    const cv = await rasterizeFrameToCanvas(W, H, dpr, fontCSS);
-    const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+    // 300 DPI master scale: render at 300/96 ≈ 3.125× CSS pixels MINIMUM,
+    // then take the larger of (300-DPI scale, user-chosen scale). This
+    // guarantees every PNG is print-ready ≥300 ppi regardless of UI selection.
+    const dpiScale = 300 / 96;
+    const renderScale = Math.max(dpiScale, exportScale);
+    const cv = await rasterizeFrameToCanvas(W, H, renderScale, fontCSS);
+    const rawBlob = await new Promise(res => cv.toBlob(res, 'image/png'));
+    const blob = await injectPng300Dpi(rawBlob);
     download(URL.createObjectURL(blob), `sticky_${Date.now()}.png`);
   } catch(e) {
     console.error(e);
     alert(e.message || 'PNG Export 실패');
   }
-  btn.textContent = 'PNG'; btn.style.opacity = '';
-});
+  btn.textContent = 'Export'; btn.style.opacity = '';
+}
 
 // ── Export GIF (real GIF via gif.js) ───────────────
 let _gifWorkerUrl = null;
@@ -2218,14 +2348,129 @@ async function ensureGifWorker() {
   return _gifWorkerUrl;
 }
 
-document.getElementById('export-gif-btn').addEventListener('click', async () => {
+// ── Layout snapshot for export fast path ───────────────────────────────────
+// Takes a one-time measurement of char layout positions (with all transforms
+// cleared) so buildFrameSVG can skip the expensive DOM reflow on every frame.
+//
+// ONLY valid for motions that do NOT mutate letterSpacing per frame:
+//   breathe — stickyText.style.letterSpacing = S.kerning (constant) ✓
+//   bump    — stickyText.style.letterSpacing = S.kerning (constant) ✓
+//   bubble  — stickyText.style.letterSpacing = S.kerning (constant) ✓
+//   flex    — stickyText.style.letterSpacing = S.kerning (constant) ✓
+//
+// These motions change letterSpacing every frame → must NOT use snapshot:
+//   wave    — kerning ± p·I·0.09 em (shifts all char x-positions)
+//   melt    — kerning ± kOsc·I·0.07 em
+//   stretch — kerning − pullT·I·0.05 em (in stretch phase only)
+function snapshotExportLayout() {
+  const savedLayerTransform = textTransformLayer.style.transform;
+  const savedCharTransforms = charEls.map(el => el.style.transform || '');
+
+  textTransformLayer.style.transform = 'none';
+  charEls.forEach(el => { el.style.transform = ''; });
+  void stickyText.offsetWidth; // one forced synchronous layout
+
+  const wrapRect = canvasWrap.getBoundingClientRect();
+  const snap = charEls.map(el => {
+    const r = el.getBoundingClientRect();
+    return { x: r.left - wrapRect.left, y: r.top - wrapRect.top,
+             w: el.offsetWidth, h: el.offsetHeight };
+  });
+
+  textTransformLayer.style.transform = savedLayerTransform;
+  charEls.forEach((el, i) => { el.style.transform = savedCharTransforms[i]; });
+  void stickyText.offsetWidth;
+
+  return snap;
+}
+
+// ── Per-motion precise period analysis ─────────────────────────────────────
+//
+// Each motion uses phi = rawT · motionSpeed · 2π. "Periodic" means EVERY
+// animated variable (transform, filter, letterSpacing) shares ONE base
+// frequency and returns to its exact t=0 state after exactly one period T.
+//
+// BREATHE  — osc = sin(phi·0.7). All vars depend only on sin(phi·0.7).
+//            T = 1/(0.7·sp). Loop is mathematically exact. ✓
+//
+// BUMP ltr — phaseFrac = (phi·0.5 mod 2π)/(2π). Peaks travel L→R then wrap.
+//            sin(phi·0.5+const) filter follows same freq. T = 1/(0.5·sp). ✓
+//
+// BUMP rnd — sin(phi·0.5 + hash_i·2π). All chars at same base freq 0.5.
+//            T = 1/(0.5·sp). ✓
+//
+// WAVE     — p = sin(phi·0.5). Every animated var (sx, x, kerning, filter)
+//            derived only from p. T = 1/(0.5·sp). ✓
+//
+// STRETCH  — cycle = (phi·0.42) mod 2π → exact sawtooth period.
+//            T = 1/(0.42·sp). ✓ (letterSpacing changes but is mod-locked)
+//
+// BUBBLE   — Three osc per char with bounded phase offsets. Per-char frequencies
+//            QUANTIZED to integer multiples of 1/T (T=5s, base=0.2Hz):
+//            r1 ∈ {0.6,0.8,1.0,1.2,1.4,1.6}, r2 ∈ {0.4..1.6}, fq ∈ {0.2,0.4}.
+//            Every sin(phi·k) returns exactly to its t=0 value at t=T. ✓
+//
+// MELT     — Per-char drip rate quantized: rate ∈ {0.2, 0.4, 0.6} (multiples of
+//            1/T at T=5s). −cos(phi·rate + i·0.4) is exact periodic at T.
+//            Global letterSpacing pulse ALSO quantized: sin(phi·0.2) — the
+//            previous 0.18 caused sin(1.8π)≈−0.588 jump every loop wrap. ✓
+//
+// FLEX     — beat = 0.55/sp; T = 4·beatDur (= 2.2s). Live preview uses raw
+//            beatIdx (organic forever); export passes exportLoopBeats=4 so
+//            the renderer wraps beatIdx mod 4 → 4-beat cyclic sequence. Loop
+//            seam = normal beat transition → exact periodic, no cross-fade.
+function getMotionLoopDuration(type, speed) {
+  const sp = Math.max(0.01, speed || 1);
+  // Every motion is now MATHEMATICALLY periodic — frame at t=T is identical
+  // to frame at t=0 (zero floating-point drift, zero blending). See per-motion
+  // periodicity comments in renderMotionFrame for the construction proof.
+  const periods = {
+    breathe: 1 / 0.7,    // ≈1.43 s — single-freq sin(phi·0.7)
+    bump:    1 / 0.5,    // 2 s     — single-freq sawtooth peak
+    wave:    1 / 0.5,    // 2 s     — single-freq sin(phi·0.5)
+    stretch: 1 / 0.42,   // ≈2.38 s — mod-2π sawtooth
+    bubble:  5,          // 5 s     — base 0.2Hz; per-char freq ∈ {N·0.2}
+    melt:    5,          // 5 s     — base 0.2Hz; per-char rate ∈ {0.2,0.4,0.6}
+    flex:    0.55 * 4,   // 2.2 s   — 4 beats, hash wrapped at beatIdx mod 4
+  };
+  return (periods[type] || 2) / sp;
+}
+
+// EVERY motion is mathematically periodic during export — frame at t=T equals
+// frame at t=0 to float precision. No cross-fade, no blending, no ghosting.
+//
+// Per-motion construction proof (T from getMotionLoopDuration above):
+//   BREATHE  sin(phi·0.7),  T=1/0.7   → phi·0.7 advances 2π → exact return     ✓
+//   BUMP     sin(phi·0.5),  T=1/0.5   → phi·0.5 advances 2π → exact return     ✓
+//   WAVE     sin(phi·0.5 + const_i), T=2 → same as bump per char               ✓
+//   STRETCH  (phi·0.42) mod 2π, T=1/0.42 → cycle returns to 0                  ✓
+//   BUBBLE   sin(phi·k + const_i), k ∈ {N·0.2}, T=5 → 2π·N exact return        ✓
+//   MELT     −cos(phi·k + const_i) AND sin(phi·0.2) kerning, k all N·0.2, T=5  ✓
+//   FLEX     beatIdx wrapped mod 4 (export-only, via exportLoopBeats=4) →
+//            cyclic 4-beat sequence; loop seam is just another beat transition ✓
+//
+// Live preview keeps flex's raw beatIdx (organic random forever); only the
+// export rasterizer activates the wrap → preview feel preserved, GIF loops.
+function isMotionPeriodic() { return true; }
+
+// Motions that mutate letterSpacing per frame — layout snapshot is not valid.
+function motionChangesLayout(type) {
+  return type === 'wave' || type === 'melt' || type === 'stretch';
+}
+
+async function runGifExport(btn) {
   if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
-  const btn = document.getElementById('export-gif-btn');
-  const dur = exportDuration;
-  // 50fps = 20ms delay = GIF spec minimum; safe maximum across all browsers
-  const fps = 50;
-  const frameDelay = 20;
-  const total = Math.round(dur * fps);
+
+  // ── Loop-aware duration ─────────────────────────────────────────────────
+  // Render exactly one motion period so the GIF loops seamlessly when played
+  // back. Frames are sampled uniformly over [0, period) — frame N would equal
+  // frame 0, so we omit it. Frame delay is derived from period/N to keep
+  // playback speed exactly matching the live preview.
+  const period = getMotionLoopDuration(S.motionType, S.motionSpeed);
+  const targetFps = 50; // GIF spec maximum (20ms/frame floor)
+  const total = Math.max(2, Math.round(period * targetFps));
+  // GIF delay is in 10ms units → snap to nearest centisecond (min 20ms = 50fps cap)
+  const frameDelay = Math.max(20, Math.round((period * 1000 / total) / 10) * 10);
 
   btn.textContent = '…'; btn.style.opacity = '.5';
   let resumeAfter = false;
@@ -2238,38 +2483,46 @@ document.getElementById('export-gif-btn').addEventListener('click', async () => 
     resumeAfter = !!animFrame;
     if (resumeAfter) stopMotion();
 
+    // One-time layout snapshot eliminates per-frame DOM reflows for motions
+    // where letterSpacing stays constant (breathe/bump/bubble/flex).
+    // Wave/melt/stretch change letterSpacing → char positions shift per frame
+    // → those must keep the per-frame clear/measure/restore cycle (layoutSnap=null).
+    const layoutSnap = motionChangesLayout(S.motionType) ? null : snapshotExportLayout();
+
     const workers = Math.min(navigator.hardwareConcurrency || 4, 8);
     const gif = new GIF({ workerScript: workerUrl, workers, quality: 5, width: Wp, height: Hp, dither: false });
     gif.on('progress', pct => showProgress('Encoding GIF…', 0.5 + pct * 0.5));
     gif.on('finished', blob => {
       download(URL.createObjectURL(blob), `sticky_${Date.now()}.gif`);
-      // ── Full cleanup to prevent slowdown on subsequent exports ─────────
-      // 1) Terminate all Web Workers (otherwise up to 8 zombies steal CPU).
-      // 2) Drop frame ImageData (~400MB at 50fps × 3s × 800² holds in `frames`
-      //    array even after render completes — triggers major GC on next export).
-      // 3) Remove event listeners to break the gif↔listener cyclic reference
-      //    so the entire gif object becomes eligible for GC immediately.
       try { gif.abort(); } catch {}
       gif.frames = [];
       gif.freeWorkers = [];
       gif.activeWorkers = [];
       if (typeof gif.removeAllListeners === 'function') gif.removeAllListeners();
       hideProgress();
-      btn.textContent = 'GIF'; btn.style.opacity = '';
+      btn.textContent = 'Export'; btn.style.opacity = '';
       if (resumeAfter) startMotion();
     });
 
     showProgress('Rendering frames…', 0);
     const work = document.createElement('canvas');
+
+    // ── Loop-quality strategy ───────────────────────────────────────────
+    // Every motion is now mathematically periodic during export. For flex,
+    // pass exportLoopBeats=4 so beatIdx wraps mod 4 → the rendered sequence
+    // visits exactly 4 beats per loop and the seam is just a normal beat
+    // boundary. All other motions ignore the parameter (no flex code path).
+    // Result: zero blending, zero ghosting, perfect loop for every motion.
+    const FLEX_LOOP_BEATS = 4;
+    const exportLoopBeats = S.motionType === 'flex' ? FLEX_LOOP_BEATS : 0;
     for (let i = 0; i < total; i++) {
-      renderMotionFrame(i / fps, 1);
-      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
+      const t = (i / total) * period;
+      renderMotionFrame(t, 1, exportLoopBeats);
+      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work, layoutSnap);
       gif.addFrame(work, { delay: frameDelay, copy: true });
-      const p = (i + 1) / total * 0.5;
-      setProgress(p);
+      setProgress((i + 1) / total * 0.5);
       btn.textContent = `${i + 1}/${total}`;
-      // Yield so progress updates render
-      if (i % 4 === 3) await new Promise(r => setTimeout(r, 0));
+      if (i % 8 === 7) await new Promise(r => setTimeout(r, 0));
     }
     btn.textContent = 'Encoding…';
     showProgress('Encoding GIF…', 0.5);
@@ -2278,11 +2531,11 @@ document.getElementById('export-gif-btn').addEventListener('click', async () => 
   } catch(e) {
     console.error(e);
     alert(e.message || 'GIF Export 실패');
-    btn.textContent = 'GIF'; btn.style.opacity = '';
+    btn.textContent = 'Export'; btn.style.opacity = '';
     hideProgress();
     if (resumeAfter) startMotion();
   }
-});
+}
 
 // ── Export MP4 ─────────────────────────────────────
 // Strategy:
@@ -2406,12 +2659,15 @@ async function exportMP4_webcodecs(W, H, dpr, fps, total, fontCSS, btn) {
   const work = document.createElement('canvas');
   work.width = Wp; work.height = Hp;
 
+  // Layout snapshot: skip per-frame DOM reflows for constant-letterSpacing motions
+  const layoutSnap = motionChangesLayout(S.motionType) ? null : snapshotExportLayout();
+
   // Keyframe every 1s for reasonable seekability without bloating bitrate
   const keyEvery = fps;
 
   for (let i = 0; i < total; i++) {
     renderMotionFrame(i / fps, 1);
-    await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
+    await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work, layoutSnap);
     const bitmap = await createImageBitmap(work);
     const frame = new VideoFrame(bitmap, {
       timestamp: i * frameDurationUs,
@@ -2425,7 +2681,7 @@ async function exportMP4_webcodecs(W, H, dpr, fps, total, fontCSS, btn) {
     // Throttle queue depth so encoder doesn't fall too far behind (memory)
     if (encoder.encodeQueueSize > 8) {
       await new Promise(r => setTimeout(r, 0));
-    } else if (i % 4 === 3) {
+    } else if (i % 8 === 7) {
       await new Promise(r => setTimeout(r, 0));
     }
   }
@@ -2438,9 +2694,8 @@ async function exportMP4_webcodecs(W, H, dpr, fps, total, fontCSS, btn) {
   download(URL.createObjectURL(blob), `sticky_${Date.now()}.${ext}`);
 }
 
-document.getElementById('export-mp4-btn').addEventListener('click', async () => {
+async function runMp4Export(btn) {
   if (!S.motionOn) { alert('먼저 모션을 활성화(Play)해주세요.'); return; }
-  const btn = document.getElementById('export-mp4-btn');
   const dur = exportDuration;
   // Match preview frame rate (preview uses requestAnimationFrame = monitor refresh).
   // Min 60fps so older monitors still get smooth motion; cap at 120fps to keep
@@ -2462,7 +2717,7 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
     if (typeof VideoEncoder !== 'undefined') {
       await exportMP4_webcodecs(W, H, dpr, fps, total, fontCSS, btn);
       hideProgress();
-      btn.textContent = 'MP4'; btn.style.opacity = '';
+      btn.textContent = 'Export'; btn.style.opacity = '';
       if (resumeAfter) startMotion();
       return;
     }
@@ -2490,12 +2745,14 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
     const work = document.createElement('canvas');
     work.width = Wp; work.height = Hp;
 
+    const layoutSnap = motionChangesLayout(S.motionType) ? null : snapshotExportLayout();
+
     recorder.start(100);
     const recStart = performance.now();
 
     for (let i = 0; i < total; i++) {
       renderMotionFrame(i / fps, 1);
-      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work);
+      await rasterizeFrameToCanvas(W, H, dpr, fontCSS, work, layoutSnap);
       oCtx.clearRect(0, 0, Wp, Hp);
       oCtx.drawImage(work, 0, 0);
       setProgress((i + 1) / total);
@@ -2512,16 +2769,78 @@ document.getElementById('export-mp4-btn').addEventListener('click', async () => 
     const blob = new Blob(chunks, { type: mimeType.split(';')[0] });
     download(URL.createObjectURL(blob), `sticky_${Date.now()}.${ext}`);
     hideProgress();
-    btn.textContent = 'MP4'; btn.style.opacity = '';
+    btn.textContent = 'Export'; btn.style.opacity = '';
     if (resumeAfter) startMotion();
 
   } catch(e) {
     console.error(e);
     alert(e.message || 'MP4 Export 실패');
-    btn.textContent = 'MP4'; btn.style.opacity = '';
+    btn.textContent = 'Export'; btn.style.opacity = '';
     hideProgress();
     if (resumeAfter) startMotion();
   }
+}
+
+// ── Export: format tabs + scale selector + dispatch ───────────────────────
+let currentExportFormat = 'png';
+let exportScale = 3;
+
+// Recompute the GIF info label from current motion state. Called when:
+//  (1) the GIF tab is activated, (2) motion type changes, (3) motion speed
+//  changes — so the displayed period stays in sync without an extra click.
+function updateGifLoopInfo() {
+  const info = document.getElementById('gif-loop-info');
+  if (!info) return;
+  // Always recompute even if pane is hidden — cheap, and avoids stale text
+  // when the user switches motions while GIF tab is inactive then re-opens.
+  const period = getMotionLoopDuration(S.motionType, S.motionSpeed);
+  info.textContent = `Auto loop · ${period.toFixed(2)}s · ${S.motionType}`;
+}
+
+// Tab switching: active tab → pane visibility
+document.querySelectorAll('#export-tabs [data-fmt]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#export-tabs [data-fmt]').forEach(b => b.classList.remove('on'));
+    tab.classList.add('on');
+    currentExportFormat = tab.dataset.fmt;
+    document.querySelectorAll('.export-pane').forEach(p => {
+      p.style.display = p.dataset.pane === currentExportFormat ? '' : 'none';
+    });
+    if (currentExportFormat === 'gif') updateGifLoopInfo();
+  });
+});
+
+// Live-sync the GIF loop info whenever motion type/speed change (regardless
+// of whether the GIF tab is currently visible — kept always up-to-date).
+document.getElementById('motion-type-grid').addEventListener('click', () => {
+  // Defer one tick so S.motionType is updated by the existing handler first
+  queueMicrotask(updateGifLoopInfo);
+});
+['motion-speed', 'motion-speed-val'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input',  () => queueMicrotask(updateGifLoopInfo));
+  el.addEventListener('change', () => queueMicrotask(updateGifLoopInfo));
+});
+
+// Initial fill so the label isn't blank if the user opens GIF tab cold
+updateGifLoopInfo();
+
+// PNG scale pills (1× / 2× / 3× / 4×)
+document.querySelectorAll('[data-pane="png"] [data-scale]').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('[data-pane="png"] [data-scale]').forEach(b => b.classList.remove('on'));
+    p.classList.add('on');
+    exportScale = parseInt(p.dataset.scale);
+  });
+});
+
+// Single Export button → dispatch by current format
+document.getElementById('export-do-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('export-do-btn');
+  if (currentExportFormat === 'png')      await runPngExport(btn);
+  else if (currentExportFormat === 'gif') await runGifExport(btn);
+  else if (currentExportFormat === 'mp4') await runMp4Export(btn);
 });
 
 // ── Arch + Perspective bindings ────────────────────
@@ -2792,10 +3111,16 @@ function hpStartAnim(type) {
     } else if (type === 'bubble') {
       hpText.style.transform = '';
       hpCharEls.forEach((el, i) => {
-        const r1=0.6+(i*0.37%1)*1.1, r2=0.4+(i*0.61%1)*1.3;
-        const sx = 1 + Math.sin(phi*r1+i*1.1)*I*0.55;
-        const sk = Math.sin(phi*r2+i*2.3)*I*22;
-        const fy = Math.sin(phi*0.15+i*0.9)*I*18;
+        // Quantized to base=0.2 Hz — see main render comment for periodicity proof
+        const r1 = (3 + (i * 7)  % 6) * 0.2;
+        const r2 = (2 + (i * 11) % 7) * 0.2;
+        const fq = (1 + i % 2)        * 0.2;
+        const ph1 = Math.sin(i * 2.4) * 0.5;
+        const ph2 = Math.sin(i * 1.7 + 1.1) * 0.5;
+        const phY = Math.sin(i * 3.1 + 0.7) * 0.5;
+        const sx = 1 + Math.sin(phi*r1 + ph1)*I*0.55;
+        const sk = Math.sin(phi*r2 + ph2)*I*22;
+        const fy = Math.sin(phi*fq + phY)*I*18;
         el.style.transform = `translateY(${fy}px) scaleX(${sx}) skewX(${sk}deg)`;
       });
 
@@ -2830,8 +3155,12 @@ function hpStartAnim(type) {
         const lEx = (targets.get(i-1)??1)-1, rEx = (targets.get(i+1)??1)-1;
         return 1 + (lEx+rEx)*0.15;
       }
-      const hpCur = hpActiveSet(beatIdx), hpPrv = hpActiveSet(beatIdx-1);
-      const hpCurT = hpBuildT(beatIdx, hpCur), hpPrvT = hpBuildT(beatIdx-1, hpPrv);
+      // Live preview: raw beatIdx (organic forever). Export wraps mod 4 via
+      // exportLoopBeats parameter on renderMotionFrame for clean GIF loops.
+      const hpCur = hpActiveSet(beatIdx);
+      const hpPrv = hpActiveSet(beatIdx-1);
+      const hpCurT = hpBuildT(beatIdx, hpCur);
+      const hpPrvT = hpBuildT(beatIdx-1, hpPrv);
       const [hpA,hpB]=[...hpCur], hpObl = (hpCurT.get(hpA)??1)>=(hpCurT.get(hpB)??1)?hpA:hpB;
       const [hpPA,hpPB]=[...hpPrv], hpPrvObl = (hpPrvT.get(hpPA)??1)>=(hpPrvT.get(hpPB)??1)?hpPA:hpPB;
       hpCharEls.forEach((el, i) => {
@@ -2843,9 +3172,10 @@ function hpStartAnim(type) {
     } else if (type === 'melt') {
       hpText.style.transform = '';
       hpCharEls.forEach((el, i) => {
-        const rate   = 0.22 + (i * 0.31 % 1) * 0.28;
-        const phase  = i * 1.57 + i * i * 0.09;
-        const drip01 = (Math.sin(phi * rate + phase) + 1) / 2;
+        // Quantized to base=0.2 Hz — see main render comment for periodicity proof
+        const rate   = (1 + (i * 5) % 3) * 0.2;
+        // Per-char phase offset — same i·0.4 spread as main render
+        const drip01 = (-Math.cos(phi * rate + i * 0.4) + 1) / 2;
         const dropY  = drip01 * I * 32;
         const sx     = 1 + drip01 * I * 0.40;
         const sy     = 1 - drip01 * I * 0.14;
